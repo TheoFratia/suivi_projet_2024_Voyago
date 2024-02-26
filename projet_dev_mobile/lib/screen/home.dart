@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 
 
@@ -30,7 +31,6 @@ class Home extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Premier champ de texte
                       SizedBox(
                         width: 320,
                         height: 50,
@@ -73,7 +73,7 @@ class Home extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             primary: Colors.white,
                             onPrimary: Colors.black,
-                            elevation: 8,
+                            elevation: 5,
                             padding: EdgeInsets.symmetric(horizontal: -20),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20), // Button border radius
@@ -116,6 +116,10 @@ class Home extends StatelessWidget {
                           contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
                           hintText: 'Un budget ?',
                         ),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                       ),
                     ),
                   ),
