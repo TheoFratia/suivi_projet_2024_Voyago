@@ -1,10 +1,42 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 
 
-class Home extends StatelessWidget {
 
+class Home extends StatefulWidget {
+
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  static List<String> listLieux = [];
+
+  void loadData() async {
+
+    final uri = Uri.parse('http://192.168.1.66:8000/api/geo');
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      List<dynamic> countries = data['countries'];
+      List<dynamic> cities = data['cities'];
+      listLieux = [...countries, ...cities];
+    } else {
+      print('Erreur de chargement des données: ${response.statusCode}');
+    }
+  }
+
+  void initState() {
+    loadData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +79,45 @@ class Home extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              fillColor: Colors.transparent,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(90),
-                                borderSide: BorderSide.none,
-                              ),
-                              hintText: 'Quel est votre destination ?',
-                              contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
-                            ),
-                          ),
+                          child: Autocomplete<String>(
+                            optionsBuilder: (TextEditingValue textEditingValue) {
+                              if (textEditingValue.text == '') {
+                                return const Iterable<String>.empty();
+                              }
+                              return listLieux.where((String item) {
+                                return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                              });
+                            },
+                            onSelected: (String selection) {
+                              print('You just selected $selection');
+                            },
+                            fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
+                              return TextFormField(
+                                controller: textEditingController,
+                                focusNode: focusNode,
+                                onFieldSubmitted: (String value) {
+                                  onFieldSubmitted();
+                                },
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  prefixIcon: IconButton(
+                                    icon: Icon(Icons.search),
+                                    onPressed: () {},
+                                  ),
+                                  fillColor: Colors.transparent,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(90),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  hintText: 'Quel est votre destination ?',
+                                  contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
+                                ),
+                              );
+                            },
+                          )
                         ),
                       ),
-                      // Bouton
                       SizedBox(
                         width: 10,
                       ),
@@ -69,11 +125,12 @@ class Home extends StatelessWidget {
                         width: 50,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+
+                          },
                           style: ElevatedButton.styleFrom(
                             primary: Colors.white,
                             onPrimary: Colors.black,
-                            elevation: 5,
                             padding: EdgeInsets.symmetric(horizontal: -20),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20), // Button border radius
@@ -117,9 +174,6 @@ class Home extends StatelessWidget {
                           hintText: 'Un budget ?',
                         ),
                         keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
                       ),
                     ),
                   ),
