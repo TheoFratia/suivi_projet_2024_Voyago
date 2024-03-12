@@ -1,10 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-
-
+import 'package:projet_dev_mobile/screen/LoginScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class Home extends StatefulWidget {
@@ -16,12 +15,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   static List<String> listLieux = [];
+  SharedPreferences? preferences;
 
   void loadData() async {
-
+    preferences = await SharedPreferences.getInstance();
+    final token = preferences?.getString('token');
+    print("test " + token.toString());
     final uri = Uri.parse('http://192.168.1.66:8000/api/geo');
-
-    final response = await http.get(uri);
+    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',},);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
@@ -29,6 +30,7 @@ class _HomeState extends State<Home> {
       List<dynamic> cities = data['cities'];
       listLieux = [...countries, ...cities];
     } else {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen(),));
       print('Erreur de chargement des données: ${response.statusCode}');
     }
   }
