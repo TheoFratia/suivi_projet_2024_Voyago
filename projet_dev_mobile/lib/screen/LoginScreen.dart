@@ -1,15 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:projet_dev_mobile/screen/home.dart';
 import 'package:http/http.dart' as http;
 import "package:shared_preferences/shared_preferences.dart";
 
-const users = {
-  'dribbble@gmail.com': '12345',
-  'hunter@gmail.com': 'hunter',
-};
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -21,9 +16,9 @@ class LoginScreen extends StatelessWidget {
     primaryColor: Color.fromRGBO(92, 175, 231, 1.0),
   );
 
-  Future<String?> _authUser(LoginData data) async {
+  login(String name, String password) async {
     final String apiUrl = 'http://192.168.1.66:8000/api/login_check';
-    final bodyContent = jsonEncode({'username': data.name, 'password': data.password,});
+    final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
 
@@ -44,19 +39,49 @@ class LoginScreen extends StatelessWidget {
     }
   }
 
-  Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
+  createUser(String name, String password) async {
+    final String apiUrl = 'http://192.168.1.66:8000/api/user';
+    final bodyContent = jsonEncode({'username': name, 'password': password,});
+
+    final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
+
+    if (response.statusCode == 201) {
       return null;
+    }else {
+      final errorJson = await response.body;
+      final Map<String, dynamic> errorMap = json.decode(errorJson);
+
+      final String errorMessage = errorMap['message'];
+
+      return errorMessage; // Return the error message
+    }
+  }
+
+
+  Future<String?> _authUser(LoginData data) async {
+    return Future.delayed(loginTime).then((_) async {
+      return await login(data.name, data.password);
     });
   }
 
-  Future<String> _recoverPassword(String name) {
-    debugPrint('Name: $name');
-    return Future.delayed(loginTime).then((_) {
-      if (!users.containsKey(name)) {
-        return 'User not exists';
+  Future<String?> _signupUser(SignupData data) {
+    return Future.delayed(loginTime).then((_) async {
+      if (data.name == null || data.password == null) {
+        return 'Veuillez remplir tous les champs';
       }
+      final name = data.name;
+      final password = data.password;
+      final user = await createUser(name!, password!);
+      if (user == null){
+        return await login(name, password);
+      }else{
+        return "Erreur lors de la création de l'utilisateur";
+      }
+    });
+  }
+
+  Future<String> _recoverPassword(String name) {;
+    return Future.delayed(loginTime).then((_) {
       return 'Password recovery not yet implemented';
     });
   }
