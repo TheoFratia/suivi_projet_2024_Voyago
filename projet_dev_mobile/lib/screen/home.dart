@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:projet_dev_mobile/screen/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'information.dart';
+
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,6 +16,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   static List<String> listLieux = [];
+  late String destination;
   SharedPreferences? preferences;
 
   void loadData() async {
@@ -30,6 +33,11 @@ class _HomeState extends State<Home> {
     } else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen(),));
     }
+  }
+
+
+  void searchDestination() {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Information(destination: destination),));
   }
 
   @override
@@ -89,20 +97,21 @@ class _HomeState extends State<Home> {
                               });
                             },
                             onSelected: (String selection) {
-                              print('You just selected $selection');
+                              destination = selection;
                             },
                             fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
                               return TextFormField(
                                 controller: textEditingController,
                                 focusNode: focusNode,
                                 onFieldSubmitted: (String value) {
-                                  onFieldSubmitted();
                                 },
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
                                   prefixIcon: IconButton(
                                     icon: const Icon(Icons.search),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      searchDestination();
+                                    },
                                   ),
                                   fillColor: Colors.transparent,
                                   filled: true,
@@ -113,6 +122,9 @@ class _HomeState extends State<Home> {
                                   hintText: 'Quel est votre destination ?',
                                   contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 50.0),
                                 ),
+                                onChanged: (value) {
+                                  destination = value;
+                                },
                               );
                             },
                           )

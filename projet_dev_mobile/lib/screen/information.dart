@@ -1,9 +1,42 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import 'login_screen.dart';
 
 
-class Information extends StatelessWidget {
-  const Information({super.key});
+class Information extends StatefulWidget {
+  final String destination;
+  const Information({super.key, required this.destination});
 
+  @override
+  State<Information> createState() => _InformationState();
+}
+
+class _InformationState extends State<Information> {
+  SharedPreferences? preferences;
+
+  void loadData() async {
+    preferences = await SharedPreferences.getInstance();
+    final token = preferences?.getString('token');
+    final uri = Uri.parse('http://10.70.3.216:8000/api/geo/${widget.destination}');
+    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',},);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print(data);
+    } else {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen(),));
+    }
+  }
+
+  @override
+  void initState() {
+    loadData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
