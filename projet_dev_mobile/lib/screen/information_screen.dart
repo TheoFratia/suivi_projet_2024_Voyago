@@ -171,150 +171,172 @@ class _InformationState extends State<Information> {
               if (selectedOption == 'Activités')
                 Expanded(
                   child: SingleChildScrollView(
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
-                      ),
-                      itemCount: filteredActivities.length,
-                      itemBuilder: (context, index) {
-                        final activity = filteredActivities[index];
-                        return Card(
-                          margin: const EdgeInsets.all(10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 200,
-                                width: double.infinity,
-                                child: Image.network(
-                                  'https://via.placeholder.com/150',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Text(
-                                activity['titre'] ?? '',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Text(
-                                activity['description'] ?? '',
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                activity['price'] != null
-                                    ? '€${activity['price']}'
-                                    : '',
-                                textAlign: TextAlign.center,
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final url = activity['link'];
-                                  if (await canLaunch(url)) {
-                                    await launch(url);
-                                  } else {
-                                    throw 'Could not launch $url';
-                                  }
-                                },
-                                child: Text('Book Now'),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.blue,
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size(double.infinity, 40),
-                                  shape: RoundedRectangleBorder(
+                    child: Wrap(
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: filteredActivities.map<Widget>((activity) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          child: Card(
+                            margin: const EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                SizedBox(
+                                  height: 150,
+                                  child: ClipRRect(
                                     borderRadius: BorderRadius.vertical(
-                                      bottom: Radius.circular(15),
+                                      top: Radius.circular(15),
+                                    ),
+                                    child: Image.network(
+                                      'https://via.placeholder.com/150',
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    activity['titre'] ?? '',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    activity['description'] ?? '',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    activity['price'] != null ? '€${activity['price']}' : '',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      final url = activity['link'];
+                                      if (await canLaunch(url)) {
+                                        await launch(url);
+                                      } else {
+                                        throw 'Could not launch $url';
+                                      }
+                                    },
+                                    child: Text('Book Now'),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.blue,
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
-                      },
+                      }).toList(),
                     ),
                   ),
                 ),
               if (selectedOption == 'Hôtels')
                 Expanded(
                   child: SingleChildScrollView(
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10.0,
-                        mainAxisSpacing: 10.0,
-                      ),
-                      itemCount: filteredHotels.length,
-                      itemBuilder: (context, index) {
-                        final hotel = filteredHotels[index];
-                        return Card(
-                          margin: const EdgeInsets.all(10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 200,
-                                width: double.infinity,
-                                child: Image.network(
-                                  'https://via.placeholder.com/150',
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Text(
-                                hotel['titre'] ?? '',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Text(
-                                hotel['description'] ?? '',
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                hotel['price'] != null
-                                    ? '€${hotel['price']}'
-                                    : '',
-                                textAlign: TextAlign.center,
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final url = hotel['link'];
-                                  if (await canLaunch(url)) {
-                                    await launch(url);
-                                  } else {
-                                    throw 'Could not launch $url';
-                                  }
-                                },
-                                child: Text('Book Now'),
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.blue,
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: Size(double.infinity, 40),
-                                  shape: RoundedRectangleBorder(
+                    child: Wrap(
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: filteredHotels.map<Widget>((hotel) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          child: Card(
+                            margin: const EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                SizedBox(
+                                  height: 150,
+                                  child: ClipRRect(
                                     borderRadius: BorderRadius.vertical(
-                                      bottom: Radius.circular(15),
+                                      top: Radius.circular(15),
+                                    ),
+                                    child: Image.network(
+                                      'https://via.placeholder.com/150',
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    hotel['titre'] ?? '',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    hotel['description'] ?? '',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    hotel['price'] != null ? '€${hotel['price']}' : '',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      final url = hotel['link'];
+                                      if (await canLaunch(url)) {
+                                        await launch(url);
+                                      } else {
+                                        throw 'Could not launch $url';
+                                      }
+                                    },
+                                    child: Text('Book Now'),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.blue,
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
-                      },
+                      }).toList(),
                     ),
                   ),
                 ),
