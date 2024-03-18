@@ -170,51 +170,52 @@ class _InformationState extends State<Information> {
               ),
               if (selectedOption == 'Activités')
                 Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                    ),
-                    itemCount: filteredActivities.length,
-                    itemBuilder: (context, index) {
-                      final activity = filteredActivities[index];
-                      return Card(
-                        margin: const EdgeInsets.all(10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 200,
-                              width: double.infinity,
-                              child: Image.network(
-                                'https://via.placeholder.com/150',
-                                fit: BoxFit.cover,
+                  child: SingleChildScrollView(
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 10.0,
+                      ),
+                      itemCount: filteredActivities.length,
+                      itemBuilder: (context, index) {
+                        final activity = filteredActivities[index];
+                        return Card(
+                          margin: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 200,
+                                width: double.infinity,
+                                child: Image.network(
+                                  'https://via.placeholder.com/150',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            ),
-                            Text(
-                              activity['titre'] ?? '',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                              Text(
+                                activity['titre'] ?? '',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                            Text(
-                              activity['description'] ?? '',
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              activity['price'] != null
-                                  ? '€${activity['price']}'
-                                  : '',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
+                              Text(
+                                activity['description'] ?? '',
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                activity['price'] != null
+                                    ? '€${activity['price']}'
+                                    : '',
+                                textAlign: TextAlign.center,
+                              ),
+                              ElevatedButton(
                                 onPressed: () async {
                                   final url = activity['link'];
                                   if (await canLaunch(url)) {
@@ -223,71 +224,73 @@ class _InformationState extends State<Information> {
                                     throw 'Could not launch $url';
                                   }
                                 },
-                                child: Text(
-                                  'Voir plus',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                child: Text('Book Now'),
                                 style: ElevatedButton.styleFrom(
                                   primary: Colors.blue,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(double.infinity, 40),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(15),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               if (selectedOption == 'Hôtels')
                 Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                    ),
-                    itemCount: filteredHotels.length,
-                    itemBuilder: (context, index) {
-                      final hotel = filteredHotels[index];
-                      return Card(
-                        margin: const EdgeInsets.all(10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 200,
-                              width: double.infinity,
-                              child: Image.network(
-                                'https://via.placeholder.com/150',
-                                fit: BoxFit.cover,
+                  child: SingleChildScrollView(
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 10.0,
+                      ),
+                      itemCount: filteredHotels.length,
+                      itemBuilder: (context, index) {
+                        final hotel = filteredHotels[index];
+                        return Card(
+                          margin: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 200,
+                                width: double.infinity,
+                                child: Image.network(
+                                  'https://via.placeholder.com/150',
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            ),
-                            Text(
-                              hotel['titre'] ?? '',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                              Text(
+                                hotel['titre'] ?? '',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                            Text(
-                              hotel['description'] ?? '',
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              hotel['price'] != null
-                                  ? '€${hotel['price']}'
-                                  : '',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
+                              Text(
+                                hotel['description'] ?? '',
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                hotel['price'] != null
+                                    ? '€${hotel['price']}'
+                                    : '',
+                                textAlign: TextAlign.center,
+                              ),
+                              ElevatedButton(
                                 onPressed: () async {
                                   final url = hotel['link'];
                                   if (await canLaunch(url)) {
@@ -296,22 +299,23 @@ class _InformationState extends State<Information> {
                                     throw 'Could not launch $url';
                                   }
                                 },
-                                child: Text(
-                                  'Voir plus',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                child: Text('Book Now'),
                                 style: ElevatedButton.styleFrom(
                                   primary: Colors.blue,
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size(double.infinity, 40),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(15),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
             ],
