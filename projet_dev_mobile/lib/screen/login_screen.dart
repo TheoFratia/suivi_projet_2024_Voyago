@@ -8,29 +8,29 @@ import "package:shared_preferences/shared_preferences.dart";
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
-  SharedPreferences? preferences;
+
 
   Duration get loginTime => const Duration(milliseconds: 2250);
 
   final ThemeData _theme = ThemeData(
-    primaryColor: Color.fromRGBO(92, 175, 231, 1.0),
+    primaryColor: const Color.fromRGBO(92, 175, 231, 1.0),
   );
 
   login(String name, String password) async {
-    final String apiUrl = 'http://192.168.1.66:8000/api/login_check';
+    const String apiUrl = 'http://10.70.3.216:8000/api/login_check';
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> user = json.decode(response.body);
-      preferences = await SharedPreferences.getInstance();
-      preferences?.setString('token', user['token']);
+      final preferences = await SharedPreferences.getInstance();
+      preferences.setString('token', user['token']);
       return null; // Indicate successful login (replace with appropriate action)
     } else if (response.statusCode == 401){
       return 'Nom d\'utilisateur ou mot de passe incorrect';
     }else {
-      final errorJson = await response.body;
+      final errorJson = response.body;
       final Map<String, dynamic> errorMap = json.decode(errorJson);
 
       final String errorMessage = errorMap['message'] ?? 'Login failed';
@@ -40,7 +40,7 @@ class LoginScreen extends StatelessWidget {
   }
 
   createUser(String name, String password) async {
-    final String apiUrl = 'http://192.168.1.66:8000/api/user';
+    const String apiUrl = 'http://10.70.3.216:8000/api/user';
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
@@ -48,7 +48,7 @@ class LoginScreen extends StatelessWidget {
     if (response.statusCode == 201) {
       return null;
     }else {
-      final errorJson = await response.body;
+      final errorJson = response.body;
       final Map<String, dynamic> errorMap = json.decode(errorJson);
 
       final String errorMessage = errorMap['message'];
@@ -80,7 +80,7 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-  Future<String> _recoverPassword(String name) {;
+  Future<String> _recoverPassword(String name) {
     return Future.delayed(loginTime).then((_) {
       return 'Password recovery not yet implemented';
     });
@@ -96,7 +96,7 @@ class LoginScreen extends StatelessWidget {
         onSignup: _signupUser,
         onSubmitAnimationCompleted: () {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => Home(),
+            builder: (context) => const Home(),
           ));
         },
         onRecoverPassword: _recoverPassword,
