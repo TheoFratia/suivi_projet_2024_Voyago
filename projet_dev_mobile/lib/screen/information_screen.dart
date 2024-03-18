@@ -1,14 +1,14 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'login_screen.dart';
 
 class Information extends StatefulWidget {
   final String destination;
-  const Information({Key? key, required this.destination}) : super(key: key);
+  const Information({super.key, required this.destination});
 
   @override
   State<Information> createState() => _InformationState();
@@ -16,14 +16,14 @@ class Information extends StatefulWidget {
 
 class _InformationState extends State<Information> {
   SharedPreferences? preferences;
-  String selectedOption = 'Infos utiles';
+  String selectedOption = 'Activités';
   List<dynamic> filteredActivities = [];
   List<dynamic> filteredHotels = [];
 
   void loadData() async {
     preferences = await SharedPreferences.getInstance();
     final token = preferences?.getString('token');
-    final uri = Uri.parse('http://10.70.3.216:8000/api/geo/${widget.destination}');
+    final uri = Uri.parse('http://192.168.1.66:8000/api/geo/${widget.destination}');
     final response = await http.get(
       uri,
       headers: {'Authorization': 'Bearer $token'},
@@ -57,8 +57,7 @@ class _InformationState extends State<Information> {
         filteredHotels = hotels;
       });
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()),
       );
     }
   }
@@ -79,25 +78,22 @@ class _InformationState extends State<Information> {
             children: [
               Row(
                 children: [
-                  const SizedBox(width: 50),
                   Expanded(
-                    child: Text(
-                      'Destination',
+                    child: Text(widget.destination,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
                 ],
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                height: 60,
+                height: 50,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -105,26 +101,6 @@ class _InformationState extends State<Information> {
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedOption = 'Infos utiles';
-                          });
-                        },
-                        child: Text(
-                          "Infos utiles",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: selectedOption == 'Infos utiles'
-                                ? Color.fromRGBO(255, 227, 97, 1)
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
                     Expanded(
                       child: InkWell(
                         onTap: () {
@@ -139,8 +115,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Activités'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? const Color.fromRGBO(255, 227, 97, 1)
+                                : const Color.fromRGBO(130, 205, 249, 1),
                           ),
                         ),
                       ),
@@ -159,8 +135,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Hôtels'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? const Color.fromRGBO(255, 227, 97, 1)
+                                : const Color.fromRGBO(130, 205, 249, 1),
                           ),
                         ),
                       ),
@@ -170,88 +146,100 @@ class _InformationState extends State<Information> {
               ),
               if (selectedOption == 'Activités')
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 10.0,
-                      runSpacing: 10.0,
-                      children: filteredActivities.map<Widget>((activity) {
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
-                          child: Card(
-                            margin: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(
-                                  height: 150,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(15),
-                                    ),
-                                    child: Image.network(
-                                      'https://via.placeholder.com/150',
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    activity['titre'] ?? '',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Text(
-                                    activity['description'] ?? '',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    activity['price'] != null ? '€${activity['price']}' : '',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      final url = activity['link'];
-                                      if (await canLaunch(url)) {
-                                        await launch(url);
-                                      } else {
-                                        throw 'Could not launch $url';
-                                      }
-                                    },
-                                    child: Text('Book Now'),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.blue,
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                  child: Wrap(
+                    spacing: 10.0,
+                    runSpacing: 10.0,
+                    children: filteredActivities.map<Widget>((activity) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 2 - 5,
+                        height: 400,
+                        child: Card(
+                          margin: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                        );
-                      }).toList(),
-                    ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                height: 120,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(15),
+                                  ),
+                                  child: Image.network(
+                                    'https://via.placeholder.com/150',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          activity['titre'] ?? '',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        child: Text(
+                                          activity['description'] ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          activity['price'] != null ? '€${activity['price']}' : '',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            final url = activity['link'];
+                                            if (await canLaunchUrl(url)) {
+                                              await launchUrl(url);
+                                            } else {
+                                              throw 'Could not launch $url';
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color.fromRGBO(130, 205, 249, 1),
+                                            padding: EdgeInsets.zero,
+                                            minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15),
+                                            ),
+                                          ),
+                                          child: const Text('Book Now', style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               if (selectedOption == 'Hôtels')
@@ -262,7 +250,8 @@ class _InformationState extends State<Information> {
                       runSpacing: 10.0,
                       children: filteredHotels.map<Widget>((hotel) {
                         return SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 15,
+                          width: MediaQuery.of(context).size.width / 2 -5,
+                          height: 400,
                           child: Card(
                             margin: const EdgeInsets.all(10),
                             shape: RoundedRectangleBorder(
@@ -272,9 +261,9 @@ class _InformationState extends State<Information> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 SizedBox(
-                                  height: 150,
+                                  height: 120,
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
+                                    borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(15),
                                     ),
                                     child: Image.network(
@@ -283,52 +272,65 @@ class _InformationState extends State<Information> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    hotel['titre'] ?? '',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Text(
-                                    hotel['description'] ?? '',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    hotel['price'] != null ? '€${hotel['price']}' : '',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      final url = hotel['link'];
-                                      if (await canLaunch(url)) {
-                                        await launch(url);
-                                      } else {
-                                        throw 'Could not launch $url';
-                                      }
-                                    },
-                                    child: Text('Book Now'),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.blue,
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            hotel['titre'] ?? '',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          child: Text(
+                                            hotel['description'] ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            hotel['price'] != null ? '€${hotel['price']}' : '',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              final url = hotel['link'];
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url);
+                                              } else {
+                                                throw 'Could not launch $url';
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color.fromRGBO(130, 205, 249, 1),
+                                              padding: EdgeInsets.zero,
+                                              minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(15),
+                                              ),
+                                            ),
+                                            child: const Text('Book Now', style: TextStyle(color: Colors.white)),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
