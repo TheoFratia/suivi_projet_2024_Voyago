@@ -8,7 +8,7 @@ import 'login_screen.dart';
 
 class Information extends StatefulWidget {
   final String destination;
-  const Information({Key? key, required this.destination}) : super(key: key);
+  const Information({super.key, required this.destination});
 
   @override
   State<Information> createState() => _InformationState();
@@ -78,26 +78,21 @@ class _InformationState extends State<Information> {
           child: Column(
             children: [
               Row(
-                children: [
-                  const SizedBox(width: 50),
-                  Expanded(
-                    child: Text(
-                      'Destination',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+              children: [
+                Expanded(child: Text(
+                  widget.destination,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-                ],
-              ),
+                ),
+              ),],),
               Container(
                 width: MediaQuery.of(context).size.width,
+                height: 50,
                 margin: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                height: 60,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -119,8 +114,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Infos utiles'
-                                ? Color.fromRGBO(255, 227, 97, 1)
-                                : Colors.black,
+                                ? const Color.fromRGBO(255, 227, 97, 1)
+                                : const Color.fromRGBO(130, 206, 249, 1.0),
                           ),
                         ),
                       ),
@@ -139,8 +134,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Activités'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? const Color.fromRGBO(255, 227, 97, 1)
+                                : const Color.fromRGBO(130, 206, 249, 1.0),
                           ),
                         ),
                       ),
@@ -159,8 +154,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Hôtels'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? const Color.fromRGBO(255, 227, 97, 1)
+                                : const Color.fromRGBO(130, 206, 249, 1.0),
                           ),
                         ),
                       ),
@@ -171,7 +166,7 @@ class _InformationState extends State<Information> {
               if (selectedOption == 'Activités')
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -187,23 +182,23 @@ class _InformationState extends State<Information> {
                               activity['price'] != null
                                   ? '€${activity['price']}'
                                   : '',
-                              style: TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 18),
                             ),
                             ElevatedButton(
                               onPressed: () async {
                                 final url = activity['link'];
-                                if (await canLaunch(url)) {
-                                  await launch(url);
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url);
                                 } else {
                                   throw 'Could not launch $url';
                                 }
                               },
-                              child: Text(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: const Text(
                                 'Voir plus',
                                 style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
                               ),
                             ),
                             Expanded(
@@ -226,7 +221,7 @@ class _InformationState extends State<Information> {
               if (selectedOption == 'Hôtels')
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 10.0,
                       mainAxisSpacing: 10.0,
@@ -242,23 +237,23 @@ class _InformationState extends State<Information> {
                               hotel['price'] != null
                                   ? '€${hotel['price']}'
                                   : '',
-                              style: TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 18),
                             ),
                             ElevatedButton(
                               onPressed: () async {
                                 final url = hotel['link'];
-                                if (await canLaunch(url)) {
-                                  await launch(url);
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url);
                                 } else {
                                   throw 'Could not launch $url';
                                 }
                               },
-                              child: Text(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: const Text(
                                 'Voir plus',
                                 style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
                               ),
                             ),
                             Expanded(
