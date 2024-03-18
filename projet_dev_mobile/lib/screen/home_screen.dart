@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:projet_dev_mobile/screen/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'information.dart';
+import 'information_screen.dart';
 
 
 class Home extends StatefulWidget {

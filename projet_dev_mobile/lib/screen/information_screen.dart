@@ -45,7 +45,7 @@ class _InformationState extends State<Information> {
       child: SafeArea(child:Column(children: [
         Row(children: [
           const SizedBox( width: 50),
-          const Expanded(child: Text('Destination', textAlign: TextAlign.center, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),),),
+          Expanded(child: Text(widget.destination, textAlign: TextAlign.center, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),),),
           IconButton(onPressed: (){}, icon: const Icon(Icons.search))],),
         Container(
           width: MediaQuery.of(context).size.width,
