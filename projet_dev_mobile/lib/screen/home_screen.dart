@@ -22,7 +22,7 @@ class _HomeState extends State<Home> {
   void loadData() async {
     preferences = await SharedPreferences.getInstance();
     final token = preferences?.getString('token');
-    final uri = Uri.parse('http://192.168.1.66:8000/api/geo');
+    final uri = Uri.parse('http://10.70.3.216:8000/api/geo');
     final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',},);
 
     if (response.statusCode == 200) {

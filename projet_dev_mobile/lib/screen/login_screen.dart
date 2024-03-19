@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
   );
 
   login(String name, String password) async {
-    const String apiUrl = 'http://192.168.1.66:8000/api/login_check';
+    const String apiUrl = 'http://10.70.3.216:8000/api/login_check';
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
