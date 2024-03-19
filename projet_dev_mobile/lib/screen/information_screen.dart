@@ -23,7 +23,7 @@ class _InformationState extends State<Information> {
   void loadData() async {
     preferences = await SharedPreferences.getInstance();
     final token = preferences?.getString('token');
-    final uri = Uri.parse('http://10.70.3.216:8000/api/geo/${widget.destination}');
+    final uri = Uri.parse('http://192.168.1.66:8000/api/geo/${widget.destination}');
     final response = await http.get(
       uri,
       headers: {'Authorization': 'Bearer $token'},
@@ -38,6 +38,7 @@ class _InformationState extends State<Information> {
       for (var item in data) {
         List<dynamic> pointOfInterests = item['pointOfInterests'];
         for (var poi in pointOfInterests) {
+          print(poi['images']);
           List<dynamic> idIType = poi['idIType'];
           for (var idType in idIType) {
             if (idType['type'] == 'activity') {
