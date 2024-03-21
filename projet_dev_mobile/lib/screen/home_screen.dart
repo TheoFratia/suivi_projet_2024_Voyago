@@ -1,9 +1,8 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:projet_dev_mobile/screen/login_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:projet_dev_mobile/services/api.dart';
+import '../variables/colors.dart';
 import 'information_screen.dart';
 
 
@@ -15,25 +14,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  static List<String> listLieux = [];
   late String destination;
-  SharedPreferences? preferences;
-
-  void loadData() async {
-    preferences = await SharedPreferences.getInstance();
-    final token = preferences?.getString('token');
-    final uri = Uri.parse('http://192.168.1.66:8000/api/geo');
-    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',},);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> countries = data['countries'];
-      List<dynamic> cities = data['cities'];
-      listLieux = [...countries, ...cities];
-    } else {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen(),));
-    }
-  }
+  List<String> listLieux = [];
 
 
   void searchDestination() {
@@ -42,8 +24,12 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    loadData();
     super.initState();
+    ApiManager().loadData(context).then((data) {
+      setState(() {
+        listLieux = data;
+      });
+    });
   }
 
   @override
@@ -76,11 +62,11 @@ class _HomeState extends State<Home> {
                         height: 50,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: inputColor,
                             borderRadius: BorderRadius.circular(90),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.7), // Shadow color
+                                color: shadow,
                                 spreadRadius: 0,
                                 blurRadius: 7,
                                 offset: const Offset(0, 3),
@@ -136,14 +122,15 @@ class _HomeState extends State<Home> {
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () {
-
+                            destination = listLieux[Random().nextInt(listLieux.length)];
+                            searchDestination();
                           },
                           style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            backgroundColor: Colors.white,
+                            foregroundColor: iconColor,
+                            backgroundColor: inputColor,
                             padding: const EdgeInsets.symmetric(horizontal: -20),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20), // Button border radius
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                           child: const Center(
@@ -161,11 +148,11 @@ class _HomeState extends State<Home> {
                     height: 50,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: inputColor,
                         borderRadius: BorderRadius.circular(90),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.7),
+                            color: shadow,
                             spreadRadius: 0,
                             blurRadius: 7,
                             offset: const Offset(0, 3),

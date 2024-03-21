@@ -1,16 +1,45 @@
-import 'package:flutter/cupertino.dart';
-import 'TypePointOfInterest.dart';
-
 class PointOfInterest {
   int id;
-  Text description;
+  String description;
   String link;
-  double price;
-  TypePointOfInterest type;
+  int price;
+  String type;
   String titre;
   String status;
-  DateTime created_at;
-  DateTime updated_at;
+  DateTime createdAt;
+  DateTime updatedAt;
 
-  PointOfInterest({required this.id, required this.status, required this.created_at, required this.updated_at, required this.description, required this.link, required this.price, required this.type, required this.titre});
+  factory PointOfInterest.fromJson(Map<String, dynamic> json) {
+    if (json['idIType'] == null || json['idIType'].isEmpty) {
+      throw Exception("test2" + json['idIType']);
+    }
+    return PointOfInterest(
+      id: json['id'],
+      status: json['status'],
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
+      description: json['description'],
+      type: json['idIType'][0]['type'],
+      link: json['link'],
+      price: json['price'],
+      titre: json['titre'],
+    );
+  }
+
+  PointOfInterest({required this.id, required this.type ,required this.status, required this.createdAt, required this.updatedAt, required this.description, required this.link, required this.price, required this.titre});
+}
+
+
+class ListPointOfInterest {
+  final List<PointOfInterest> pointOfInterests;
+
+  ListPointOfInterest(this.pointOfInterests);
+
+  factory ListPointOfInterest.fromJson(List<dynamic> json) {
+    List<PointOfInterest> pois = [];
+    for (var item in json) {
+      pois.add(PointOfInterest.fromJson(item as Map<String, dynamic>));
+    }
+    return ListPointOfInterest(pois);
+  }
 }
