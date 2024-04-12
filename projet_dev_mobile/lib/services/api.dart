@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/geo.dart';
+import '../models/user.dart';
 import '../screen/login_screen.dart';
 
 class ApiManager {
@@ -51,7 +52,7 @@ class ApiManager {
   }
 
   createUser(String name, String password) async {
-    const String apiUrl = 'http://10.70.3.216:8000/api/user';
+    final String apiUrl = '$baseUrl/api/user';
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
@@ -64,7 +65,7 @@ class ApiManager {
 
       final String errorMessage = errorMap['message'];
 
-      return errorMessage; // Return the error message
+      return errorMessage;
     }
   }
 
@@ -85,8 +86,41 @@ class ApiManager {
       return geoData;
     } else {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
-      return []; // Return an empty list on error
+      return [];
     }
   }
 
+  Future<User?> fetchUser() async {
+    final preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token') ?? '';
+    final uri = Uri.parse('$baseUrl/user');
+
+    try {
+      final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        return await fetchUserByUuid(userData['id'], token);
+      } else{
+        print("test");
+        return null;
+      }
+    } catch (e) {
+      print("Erreur lors de la requête HTTP : $e");
+      return null;
+    }
+  }
+
+
+
+  Future<User?> fetchUserByUuid(String uuid, String token) async {
+    final uri = Uri.parse('$baseUrl/user/$uuid');
+      final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
+
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        return User.fromJson(userData);
+      } else {
+        return null;
+      }
+  }
 }

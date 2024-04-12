@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import '../Widget/popup_button.dart';
 import '../models/PointOfInterest.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/api.dart';
 import '../variables/colors.dart';
 import '../variables/informationOption.dart';
-import 'class/popup_button.dart';
 
 class Information extends StatefulWidget {
   final String destination;
