@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/api.dart';
 import '../variables/colors.dart';
+import '../variables/informationOption.dart';
 import 'class/popup_button.dart';
 
 class Information extends StatefulWidget {
@@ -16,7 +17,7 @@ class Information extends StatefulWidget {
 
 class _InformationState extends State<Information> {
   SharedPreferences? preferences;
-  String selectedOption = 'Activités';
+  String selectedOption = InformationOption.activities.value;
   List<PointOfInterest> filteredActivities = [];
   List<PointOfInterest> filteredHotels = [];
 
@@ -78,7 +79,7 @@ class _InformationState extends State<Information> {
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            selectedOption = 'Activités';
+                            selectedOption = InformationOption.activities.value;
                           });
                         },
                         child: Text(
@@ -87,7 +88,7 @@ class _InformationState extends State<Information> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: selectedOption == 'Activités'
+                            color: selectedOption == InformationOption.activities.value
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -98,7 +99,7 @@ class _InformationState extends State<Information> {
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            selectedOption = 'Hôtels';
+                            selectedOption = InformationOption.hotel.value;
                           });
                         },
                         child: Text(
@@ -107,7 +108,7 @@ class _InformationState extends State<Information> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: selectedOption == 'Hôtels'
+                            color: selectedOption == InformationOption.hotel.value
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -117,7 +118,7 @@ class _InformationState extends State<Information> {
                   ],
                 ),
               ),
-              if (selectedOption == 'Activités')
+              if (selectedOption == InformationOption.activities.value)
                 Expanded(
                   child: Wrap(
                     spacing: 10.0,
@@ -213,7 +214,7 @@ class _InformationState extends State<Information> {
                     }).toList(),
                   ),
                 ),
-              if (selectedOption == 'Hôtels')
+              if (selectedOption == InformationOption.hotel.value)
                 Expanded(
                   child: SingleChildScrollView(
                     child: Wrap(
