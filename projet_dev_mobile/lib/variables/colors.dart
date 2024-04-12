@@ -11,3 +11,5 @@ const selectedTextColor = Color.fromRGBO(255, 227, 97, 1);
 const notSelectedTextColor = Color.fromRGBO(130, 205, 249, 1);
 const informationButtonBackgroudColor = Color.fromRGBO(130, 205, 249, 1);
 const informationButtonTextColor = Colors.white;
+const errorBorderColor = Colors.red;
+const borderColorHome = Color.fromRGBO(130, 205, 249, 1);

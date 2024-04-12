@@ -16,11 +16,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late String destination;
+  Color borderColor = borderColorHome;
   List<String> listLieux = [];
 
+  bool estPresentDansListe(String recherche, List<String> liste) {
+    final rechercheNormalisee = _normaliser(recherche.toLowerCase());
+    final listeNormalisee = liste.map((element) => _normaliser(element.toLowerCase()));
+    return listeNormalisee.contains(rechercheNormalisee);
+  }
+
+  String _normaliser(String input) {
+    return input.replaceAll(RegExp(r'[^\w\s]'), '');
+  }
 
   void searchDestination() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Information(destination: destination),));
+    if (estPresentDansListe(destination, listLieux))
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Information(destination: destination),));
+    else
+      setState(() {
+        borderColor = errorBorderColor;
+      });
   }
 
   @override
@@ -65,6 +80,10 @@ class _HomeState extends State<Home> {
                           decoration: BoxDecoration(
                             color: inputColor,
                             borderRadius: BorderRadius.circular(90),
+                            border: Border.all(
+                              color: borderColor,
+                              width: 1.0,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: shadow,
