@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../variables/colors.dart';
+import '../../variables/icons.dart';
 import '../../variables/profile_option.dart';
 
 
 class PopupButton extends StatelessWidget {
   const PopupButton({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +25,12 @@ class PopupButton extends StatelessWidget {
       child: PopupMenuButton(
         itemBuilder: (BuildContext context) {
           return [
-            const PopupMenuItem(
-              child: Text('Profile'),
+            PopupMenuItem(
+              child: Text(ProfileOption.Profile.value),
               value: ProfileOption.Profile,
             ),
-            const PopupMenuItem(
-              child: Text('Déconnexion'),
+            PopupMenuItem(
+              child: Text(ProfileOption.Deconnexion.value),
               value: ProfileOption.Deconnexion,
             ),
           ];
@@ -36,7 +38,7 @@ class PopupButton extends StatelessWidget {
         onSelected: (value) {
           print(value);
         },
-        child: const Icon(Icons.more_vert),
+        child: const Icon(iconProfile),
       ),
     );
   }

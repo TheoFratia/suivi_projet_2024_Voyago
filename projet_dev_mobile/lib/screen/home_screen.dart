@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/services/api.dart';
 import '../variables/colors.dart';
+import '../variables/icons.dart';
 import 'information_screen.dart';
 
 
@@ -95,7 +96,7 @@ class _HomeState extends State<Home> {
                                 decoration: InputDecoration(
                                   suffixIcon: IconButton(
                                     padding: const EdgeInsets.only(right: 20, top: 10, bottom: 10),
-                                    icon: const Icon(Icons.search),
+                                    icon: const Icon(iconSearchInput),
                                     onPressed: () {
                                       searchDestination();
                                     },
@@ -134,7 +135,7 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                           child: const Center(
-                            child: Icon(Icons.casino_outlined),
+                            child: Icon(iconRandom),
                           ),
                         ),
                       ),
