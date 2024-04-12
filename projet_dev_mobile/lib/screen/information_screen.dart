@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../models/PointOfInterest.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
-import 'login_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/api.dart';
+import '../variables/colors.dart';
 
 class Information extends StatefulWidget {
   final String destination;
-  const Information({Key? key, required this.destination}) : super(key: key);
+  const Information({super.key, required this.destination});
 
   @override
   State<Information> createState() => _InformationState();
@@ -16,115 +15,57 @@ class Information extends StatefulWidget {
 
 class _InformationState extends State<Information> {
   SharedPreferences? preferences;
-  String selectedOption = 'Infos utiles';
-  List<dynamic> filteredActivities = [];
-  List<dynamic> filteredHotels = [];
+  String selectedOption = 'Activités';
+  List<PointOfInterest> filteredActivities = [];
+  List<PointOfInterest> filteredHotels = [];
 
-  void loadData() async {
-    preferences = await SharedPreferences.getInstance();
-    final token = preferences?.getString('token');
-    final uri = Uri.parse('http://10.70.3.216:8000/api/geo/${widget.destination}');
-    final response = await http.get(
-      uri,
-      headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      List<dynamic> activities = [];
-      List<dynamic> hotels = [];
-
-      for (var item in data) {
-        List<dynamic> pointOfInterests = item['pointOfInterests'];
-        for (var poi in pointOfInterests) {
-          List<dynamic> idIType = poi['idIType'];
-          for (var idType in idIType) {
-            if (idType['type'] == 'activity') {
-              activities.add(poi);
-              break;
-            } else if (idType['type'] == 'hostel') {
-              hotels.add(poi);
-              break;
-            }
-          }
-        }
-      }
-
-      setState(() {
-        selectedOption = 'Activités';
-        filteredActivities = activities;
-        filteredHotels = hotels;
-      });
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
-    }
+  Future<void> fetchInformationData() async {
+    final data = await ApiManager().loadInformationData(context, widget.destination);
+    setState(() {
+      filteredActivities = data.where((geo) => geo.pointOfInterest != null).expand((geo) => geo.pointOfInterest!.pointOfInterests).where((poi) => poi.type == 'activity').toList();
+      filteredHotels = data.where((geo) => geo.pointOfInterest != null).expand((geo) => geo.pointOfInterest!.pointOfInterests).where((poi) => poi.type == 'hostel').toList();
+    });
   }
 
   @override
   void initState() {
-    loadData();
     super.initState();
+    fetchInformationData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: const Color.fromRGBO(130, 205, 249, 1),
+        color: primary,
         child: SafeArea(
           child: Column(
             children: [
               Row(
                 children: [
-                  const SizedBox(width: 50),
                   Expanded(
-                    child: Text(
-                      'Destination',
+                    child: Text(widget.destination,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: textColor,
                       ),
                     ),
                   ),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
                 ],
               ),
               Container(
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.only(top: 20, left: 10, right: 10),
-                height: 60,
+                height: 50,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: inputColor,
                   borderRadius: BorderRadius.circular(90),
                 ),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            selectedOption = 'Infos utiles';
-                          });
-                        },
-                        child: Text(
-                          "Infos utiles",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: selectedOption == 'Infos utiles'
-                                ? Color.fromRGBO(255, 227, 97, 1)
-                                : Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
                     Expanded(
                       child: InkWell(
                         onTap: () {
@@ -139,8 +80,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Activités'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? selectedTextColor
+                                : notSelectedTextColor,
                           ),
                         ),
                       ),
@@ -159,8 +100,8 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption == 'Hôtels'
-                                ? Color.fromRGBO(130, 205, 249, 1)
-                                : Colors.black,
+                                ? selectedTextColor
+                                : notSelectedTextColor,
                           ),
                         ),
                       ),
@@ -170,112 +111,196 @@ class _InformationState extends State<Information> {
               ),
               if (selectedOption == 'Activités')
                 Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                    ),
-                    itemCount: filteredActivities.length,
-                    itemBuilder: (context, index) {
-                      final activity = filteredActivities[index];
-                      return Card(
-                        margin: const EdgeInsets.all(10),
-                        child: Column(
-                          children: [
-                            Text(
-                              activity['price'] != null
-                                  ? '€${activity['price']}'
-                                  : '',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final url = activity['link'];
-                                if (await canLaunch(url)) {
-                                  await launch(url);
-                                } else {
-                                  throw 'Could not launch $url';
-                                }
-                              },
-                              child: Text(
-                                'Voir plus',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
-                              ),
-                            ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text(activity['description'] ?? ''),
-                                    ),
-                                  ],
+                  child: Wrap(
+                    spacing: 10.0,
+                    runSpacing: 10.0,
+                    children: filteredActivities.map<Widget>((activity) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 2 - 5,
+                        height: 500,
+                        child: Card(
+                          color: cardColor,
+                          margin: const EdgeInsets.all(10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                height: 120,
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(15),
+                                  ),
+                                  child: Image.network(
+                                    'https://via.placeholder.com/150',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(activity.titre,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        child: Text( activity.description,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text( '${activity.price}€',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            final url = activity.link;
+                                            if (await canLaunchUrl(url as Uri)) {
+                                              await launchUrl(url as Uri);
+                                            } else {
+                                              throw 'Could not launch $url';
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: informationButtonBackgroudColor,
+                                            padding: EdgeInsets.zero,
+                                            minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(15),
+                                            ),
+                                          ),
+                                          child: const Text('Book Now', style: TextStyle(color: informationButtonTextColor)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
-                    },
+                    }).toList(),
                   ),
                 ),
               if (selectedOption == 'Hôtels')
                 Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                    ),
-                    itemCount: filteredHotels.length,
-                    itemBuilder: (context, index) {
-                      final hotel = filteredHotels[index];
-                      return Card(
-                        margin: const EdgeInsets.all(10),
-                        child: Column(
-                          children: [
-                            Text(
-                              hotel['price'] != null
-                                  ? '€${hotel['price']}'
-                                  : '',
-                              style: TextStyle(fontSize: 18),
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: filteredHotels.map<Widget>((hotel) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 2 - 5,
+                          height: 500,
+                          child: Card(
+                            color: cardColor,
+                            margin: const EdgeInsets.all(10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            ElevatedButton(
-                              onPressed: () async {
-                                final url = hotel['link'];
-                                if (await canLaunch(url)) {
-                                  await launch(url);
-                                } else {
-                                  throw 'Could not launch $url';
-                                }
-                              },
-                              child: Text(
-                                'Voir plus',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.blue,
-                              ),
-                            ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      title: Text(hotel['description'] ?? ''),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                SizedBox(
+                                  height: 120,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(15),
                                     ),
-                                  ],
+                                    child: Image.network(
+                                      'https://via.placeholder.com/150',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(hotel.titre,
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                          child: Text(hotel.description,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text('${hotel.price}€',
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              final url = hotel.link;
+                                              if (await canLaunchUrl(url as Uri)) {
+                                                await launchUrl(url as Uri);
+                                              } else {
+                                                throw 'Could not launch $url';
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: informationButtonBackgroudColor,
+                                              padding: EdgeInsets.zero,
+                                              minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(15),
+                                              ),
+                                            ),
+                                            child: const Text('Book Now', style: TextStyle(color: informationButtonTextColor)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
             ],

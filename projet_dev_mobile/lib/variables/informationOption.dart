@@ -1,0 +1,7 @@
+enum InformationOption {
+  activity,
+  hotel,
+}
+
+
+
