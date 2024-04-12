@@ -5,6 +5,7 @@ const inputColor = Colors.white;
 const iconColor = Colors.black;
 const primary = Color.fromRGBO(130, 205, 249, 1);
 const cardColor = Colors.white;
+const titreColor = Colors.white;
 const textColor = Colors.black;
 const selectedTextColor = Color.fromRGBO(255, 227, 97, 1);
 const notSelectedTextColor = Color.fromRGBO(130, 205, 249, 1);

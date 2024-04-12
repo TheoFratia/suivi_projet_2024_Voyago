@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/api.dart';
 import '../variables/colors.dart';
+import 'class/popup_button.dart';
 
 class Information extends StatefulWidget {
   final String destination;
@@ -44,14 +45,21 @@ class _InformationState extends State<Information> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(widget.destination,
+                    child: Text(
+                      widget.destination,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: textColor,
+                        color: titreColor,
                       ),
                     ),
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    margin: EdgeInsets.only(right: 10),
+                    child: const PopupButton(),
                   ),
                 ],
               ),

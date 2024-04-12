@@ -6,14 +6,12 @@ import '../models/geo.dart';
 import '../screen/login_screen.dart';
 
 class ApiManager {
-  final String baseUrl = 'http://10.70.3.216:8000/api';
+  final String baseUrl = 'http://10.70.5.37:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
-    var preferences = await SharedPreferences.getInstance();
-    final token = preferences.getString('token');
     final uri = Uri.parse('$baseUrl/geo');
     try {
-      final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         List<dynamic> countries = data['countries'];
@@ -73,10 +71,8 @@ class ApiManager {
 
 
   Future<List<Geo>> loadInformationData(BuildContext context, String destination) async {
-    var preferences = await SharedPreferences.getInstance();
-    final token = preferences.getString('token');
     final uri = Uri.parse('$baseUrl/geo/$destination');
-    final response = await http.get(uri, headers: {'Authorization': 'Bearer $token'});
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       List<Geo> geoData = [];
