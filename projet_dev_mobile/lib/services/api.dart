@@ -7,10 +7,10 @@ import '../models/user.dart';
 import '../screen/login_screen.dart';
 
 class ApiManager {
-  final String baseUrl = 'http://10.70.5.37:8000/api';
+  final String _baseUrl = 'http://10.70.5.37:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
-    final uri = Uri.parse('$baseUrl/geo');
+    final uri = Uri.parse('$_baseUrl/geo');
     try {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
@@ -32,7 +32,7 @@ class ApiManager {
   login(String name, String password) async {
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
-    final response = await http.post(Uri.parse('$baseUrl/login_check'), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
+    final response = await http.post(Uri.parse('$_baseUrl/login_check'), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> user = json.decode(response.body);
@@ -52,7 +52,7 @@ class ApiManager {
   }
 
   createUser(String name, String password) async {
-    final String apiUrl = '$baseUrl/api/user';
+    final String apiUrl = '$_baseUrl/api/user';
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
     final response = await http.post(Uri.parse(apiUrl), headers: {'Content-Type': 'application/json'},  body: bodyContent,);
@@ -72,7 +72,7 @@ class ApiManager {
 
 
   Future<List<Geo>> loadInformationData(BuildContext context, String destination) async {
-    final uri = Uri.parse('$baseUrl/geo/$destination');
+    final uri = Uri.parse('$_baseUrl/geo/$destination');
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class ApiManager {
   Future<User?> fetchUser() async {
     final preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token') ?? '';
-    final uri = Uri.parse('$baseUrl/user');
+    final uri = Uri.parse('$_baseUrl/user');
 
     try {
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
@@ -111,7 +111,7 @@ class ApiManager {
 
 
   Future<User?> fetchUserByUuid(String uuid, String token) async {
-    final uri = Uri.parse('$baseUrl/user/$uuid');
+    final uri = Uri.parse('$_baseUrl/user/$uuid');
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
 
       if (response.statusCode == 200) {

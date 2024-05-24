@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_dev_mobile/screen/Profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user.dart';
 import '../../variables/colors.dart';
@@ -7,7 +8,6 @@ import '../../variables/profile_option.dart';
 import '../../services/api.dart';
 import '../screen/login_screen.dart';
 
-
 class PopupButton extends StatefulWidget {
   const PopupButton({super.key});
 
@@ -15,19 +15,15 @@ class PopupButton extends StatefulWidget {
   State<PopupButton> createState() => _PopupButtonState();
 }
 
-
-
 class _PopupButtonState extends State<PopupButton> {
   late User? user;
   String username = ProfileOption.profile.value;
-
 
   @override
   void initState(){
     super.initState();
     _loadUser();
   }
-
 
   void _loadUser() async {
     user =  await ApiManager().fetchUser();
@@ -38,13 +34,11 @@ class _PopupButtonState extends State<PopupButton> {
     }
   }
 
-
   void _logout() async {
     final preferences = await SharedPreferences.getInstance();
     preferences.remove('token');
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -61,24 +55,32 @@ class _PopupButtonState extends State<PopupButton> {
       ),
       child: PopupMenuButton(
         itemBuilder: (BuildContext context) {
-          return [
+          final List<PopupMenuEntry<Object>> items = [
             PopupMenuItem(
               value: username,
               child: Text(username),
             ),
-            PopupMenuItem(
-              value: ProfileOption.deconnexion,
-              child: Text(ProfileOption.deconnexion.value),
-            ),
           ];
+
+          // Ajouter le bouton de déconnexion seulement si l'utilisateur n'est pas null
+          if (user != null) {
+            items.add(
+              PopupMenuItem(
+                value: ProfileOption.deconnexion,
+                child: Text(ProfileOption.deconnexion.value),
+              ),
+            );
+          }
+
+          return items;
         },
         onSelected: (value) {
           if (value == ProfileOption.deconnexion) {
             _logout();
-          }else if (value == ProfileOption.profile.value){
+          } else if (value == ProfileOption.profile.value){
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
-          }else {
-            print("aller sur la page de profile");
+          } else {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage( user: user!)));
           }
         },
         child: const Icon(iconProfile),
