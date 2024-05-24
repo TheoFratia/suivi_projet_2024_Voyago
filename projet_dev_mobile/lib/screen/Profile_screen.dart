@@ -12,7 +12,7 @@ class ProfilePage extends StatelessWidget {
         title: const Center(
           child: Text(
             'Nom d\'utilisateur',
-            style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.white),
+            style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: titreColor),
           ),
         ),
         backgroundColor: primary,
@@ -32,10 +32,10 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 100,
-                        backgroundColor: Colors.black,
+                        backgroundColor: iconColor,
                         child: CircleAvatar(
                           radius: 95,
-                          backgroundColor: Colors.white,
+                          backgroundColor: inputColor,
                           child: Icon(Icons.person, size: 120),
                         ),
                       ),
@@ -43,10 +43,10 @@ class ProfilePage extends StatelessWidget {
                       TextButton(
                         onPressed: () {},
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.grey,
+                          foregroundColor: informationButtonBackgroudColor,
+                          backgroundColor: inputColor,
                         ),
-                        child: const Text('Changer'),
+                        child: const Text('Changer', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       ),
                     ],
                   ),
@@ -86,14 +86,14 @@ class ProfilePage extends StatelessWidget {
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () {},
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: const Text('Supprimer votre compte', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(backgroundColor: deleteColor),
+                      child: const Text('Supprimer votre compte', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(width: 40),
                     ElevatedButton(
                       onPressed: () {},
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                      child: const Text('Sauvegarder', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(backgroundColor: acceptColor),
+                      child: const Text('Sauvegarder', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -102,7 +102,7 @@ class ProfilePage extends StatelessWidget {
               const Center(
                 child: Text(
                   'Vos voyages',
-                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: titreColor),
                 ),
               ),
               const SizedBox(height: 10),
