@@ -101,11 +101,9 @@ class ApiManager {
         final userData = json.decode(response.body);
         return await fetchUserByUuid(userData['id'], token);
       } else{
-        print("test");
         return null;
       }
     } catch (e) {
-      print("Erreur lors de la requête HTTP : $e");
       return null;
     }
   }

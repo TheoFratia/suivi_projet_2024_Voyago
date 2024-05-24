@@ -64,12 +64,12 @@ class _PopupButtonState extends State<PopupButton> {
         itemBuilder: (BuildContext context) {
           return [
             PopupMenuItem(
-              child: Text(username),
               value: username,
+              child: Text(username),
             ),
             PopupMenuItem(
-              child: Text(ProfileOption.Deconnexion.value),
               value: ProfileOption.Deconnexion,
+              child: Text(ProfileOption.Deconnexion.value),
             ),
           ];
         },
