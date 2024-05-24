@@ -4,6 +4,7 @@ import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
 
 class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,22 +56,22 @@ class ProfilePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
+                        SizedBox(
                           width: 500,
                           child: buildTextField('Nouveau nom d\'utilisateur'),
                         ),
                         const SizedBox(height: 30),
-                        Container(
+                        SizedBox(
                           width: 500,
                           child: buildTextField('Changer d\'adresse mail'),
                         ),
                         const SizedBox(height: 30),
-                        Container(
+                        SizedBox(
                           width: 500,
                           child: buildTextField('Nouveau mot de passe', obscureText: true),
                         ),
                         const SizedBox(height: 30),
-                        Container(
+                        SizedBox(
                           width: 500,
                           child: buildTextField('Confirmer mot de passe', obscureText: true),
                         ),

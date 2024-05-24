@@ -11,7 +11,7 @@ class PointOfInterest {
 
   factory PointOfInterest.fromJson(Map<String, dynamic> json) {
     if (json['idIType'] == null || json['idIType'].isEmpty) {
-      throw Exception("test2" + json['idIType']);
+      throw Exception(json['idIType']);
     }
     return PointOfInterest(
       id: json['id'],

@@ -59,7 +59,7 @@ class _InformationState extends State<Information> {
                   Container(
                     width: 70,
                     height: 70,
-                    margin: EdgeInsets.only(right: 10),
+                    margin: const EdgeInsets.only(right: 10),
                     child: const PopupButton(),
                   ),
                 ],

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user.dart';
@@ -10,7 +9,7 @@ import '../screen/login_screen.dart';
 
 
 class PopupButton extends StatefulWidget {
-  const PopupButton({Key? key}) : super(key: key);
+  const PopupButton({super.key});
 
   @override
   State<PopupButton> createState() => _PopupButtonState();
@@ -20,7 +19,7 @@ class PopupButton extends StatefulWidget {
 
 class _PopupButtonState extends State<PopupButton> {
   late User? user;
-  String username = ProfileOption.Profile.value;
+  String username = ProfileOption.profile.value;
 
 
   @override
@@ -68,15 +67,15 @@ class _PopupButtonState extends State<PopupButton> {
               child: Text(username),
             ),
             PopupMenuItem(
-              value: ProfileOption.Deconnexion,
-              child: Text(ProfileOption.Deconnexion.value),
+              value: ProfileOption.deconnexion,
+              child: Text(ProfileOption.deconnexion.value),
             ),
           ];
         },
         onSelected: (value) {
-          if (value == ProfileOption.Deconnexion) {
+          if (value == ProfileOption.deconnexion) {
             _logout();
-          }else if (value == ProfileOption.Profile.value){
+          }else if (value == ProfileOption.profile.value){
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
           }else {
             print("aller sur la page de profile");

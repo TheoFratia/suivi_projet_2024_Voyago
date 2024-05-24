@@ -30,12 +30,15 @@ class _HomeState extends State<Home> {
   }
 
   void searchDestination() {
-    if (estPresentDansListe(destination, listLieux))
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Information(destination: destination),));
-    else
+    if (estPresentDansListe(destination, listLieux)) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => Information(destination: destination),));
+    }
+    else {
       setState(() {
         borderColor = errorBorderColor;
       });
+    }
   }
 
   @override
