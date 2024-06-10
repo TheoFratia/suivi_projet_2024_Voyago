@@ -130,8 +130,6 @@ class ApiManager {
     String _uuid = await preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
     final url = Uri.parse('$_baseUrl/user/$_uuid');
-    print(url);
-    print(avatarId);
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
