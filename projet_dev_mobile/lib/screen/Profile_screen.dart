@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
@@ -17,6 +18,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String password = '';
+  String confirmPassword = '';
   String avatarPath = 'assets/avatars/Avatar1.png';
   int avatarId = 2;
   final List<String> avatars = [
@@ -85,6 +89,20 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _updateUser() async {
+    final apiManager = ApiManager();
+    bool usernameChanged = username.isNotEmpty && username != widget.user.username;
+    bool passwordChanged = password.isNotEmpty && password == confirmPassword;
+
+    if (usernameChanged && passwordChanged) {
+      await apiManager.updateAll(username, password);
+    } else if (usernameChanged) {
+      await apiManager.updateUsername(username);
+    } else if (passwordChanged) {
+      await apiManager.updatePassword(password);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -136,22 +154,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Nouveau nom d\'utilisateur'),
+                              child: buildTextField(
+                                'Nouveau nom d\'utilisateur',
+                                onChanged: (newValue) {
+                                    username = newValue;
+                                },
+                              ),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Changer d\'adresse mail'),
+                              child: buildTextField('Nouveau mot de passe', obscureText: true, onChanged: (newValue) {password = newValue;}),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Nouveau mot de passe', obscureText: true),
-                            ),
-                            const SizedBox(height: 30),
-                            SizedBox(
-                              width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Confirmer mot de passe', obscureText: true),
+                              child: buildTextField('Confirmer mot de passe', obscureText: true, onChanged: (newValue) {confirmPassword = newValue;}),
                             ),
                           ],
                         ),
@@ -171,10 +189,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: const Text('Supprimer votre compte', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ),
                         ),
-                        const SizedBox(width: 20), // Espacement entre les boutons
-                        Flexible( // Utilisation de Flexible pour rendre le bouton "Sauvegarder" flexible
+                        const SizedBox(width: 20),
+                        Flexible(
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {_updateUser();},
                             style: ElevatedButton.styleFrom(backgroundColor: acceptColor),
                             child: const Text('Sauvegarder', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ),

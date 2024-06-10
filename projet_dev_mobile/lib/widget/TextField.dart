@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
-Widget buildTextField(String labelText, {bool obscureText = false}) {
+Widget buildTextField(
+    String labelText, {
+      bool obscureText = false,
+      required void Function(String) onChanged,
+    }) {
   return TextField(
+    onChanged: onChanged,
     decoration: InputDecoration(
       labelText: labelText,
       labelStyle: const TextStyle(color: Colors.black),
