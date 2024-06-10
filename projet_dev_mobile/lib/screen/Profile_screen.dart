@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api.dart';
 import '../widget/TextField.dart';
 import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
@@ -18,6 +19,18 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String avatarPath = 'assets/avatars/Avatar1.png';
   int avatarId = 2;
+  final List<String> avatars = [
+    'assets/avatars/Avatar1.png',
+    'assets/avatars/Avatar2.png',
+    'assets/avatars/Avatar3.png',
+    'assets/avatars/Avatar4.png',
+    'assets/avatars/Avatar5.png',
+    'assets/avatars/Avatar6.png',
+    'assets/avatars/Avatar7.png',
+    'assets/avatars/Avatar8.png',
+    'assets/avatars/Avatar9.png',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -30,6 +43,46 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       avatarPath = 'assets/avatars/Avatar$avatarId.png';
     });
+  }
+
+  void _openAvatarDialog() async {
+    final selectedAvatar = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choisir un avatar'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 4.0,
+                mainAxisSpacing: 4.0,
+              ),
+              itemCount: avatars.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context, avatars[index]);
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage(avatars[index]),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedAvatar != null) {
+      setState(() {
+        avatarPath = selectedAvatar;
+      });
+      ApiManager().updateAvatar(avatars.indexOf(selectedAvatar) + 1);
+    }
   }
 
   @override
@@ -61,17 +114,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       Column(
                         children: [
                           CircleAvatar(
-                            radius: 95,
-                            backgroundColor: iconColor,
-                            child: CircleAvatar(
-                              radius: 90,
-                              backgroundColor: inputColor,
+                              radius: 80,
+                              backgroundColor: Colors.transparent,
                               backgroundImage: AssetImage(avatarPath),
                             ),
-                          ),
                           const SizedBox(height: 18),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () { _openAvatarDialog();},
                             style: TextButton.styleFrom(
                               foregroundColor: informationButtonBackgroudColor,
                               backgroundColor: inputColor,

@@ -67,15 +67,7 @@ flutter:
   assets:
     - assets/images/background.png
     - assets/images/logo.png
-    - assets/avatars/Avatar1.png
-    - assets/avatars/Avatar2.png
-    - assets/avatars/Avatar3.png
-    - assets/avatars/Avatar4.png
-    - assets/avatars/Avatar5.png
-    - assets/avatars/Avatar6.png
-    - assets/avatars/Avatar7.png
-    - assets/avatars/Avatar8.png
-    - assets/avatars/Avatar9.png
+    - assets/avatars/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

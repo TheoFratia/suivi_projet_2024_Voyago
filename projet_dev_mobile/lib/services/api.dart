@@ -124,4 +124,28 @@ class ApiManager {
         return null;
       }
   }
+
+  Future<void> updateAvatar(int avatarId) async {
+    final preferences = await SharedPreferences.getInstance();
+    String _uuid = await preferences.getString('uuid') ?? '';
+    String token = preferences.getString('token') ?? '';
+    final url = Uri.parse('$_baseUrl/user/$_uuid');
+    print(url);
+    print(avatarId);
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({
+      'avatarId': avatarId,
+    });
+
+    final response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      preferences.setInt('avatarId', avatarId);
+    } else {
+      print('Failed to update profile: ${response.statusCode}');
+    }
+  }
 }
