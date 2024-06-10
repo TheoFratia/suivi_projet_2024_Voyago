@@ -143,7 +143,7 @@ class _InformationState extends State<Information> {
                                     top: Radius.circular(15),
                                   ),
                                   child: Image.network(
-                                    'https://via.placeholder.com/150',
+                                    activity.imageLink,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -240,7 +240,7 @@ class _InformationState extends State<Information> {
                                       top: Radius.circular(15),
                                     ),
                                     child: Image.network(
-                                      'https://via.placeholder.com/150',
+                                      hotel.imageLink,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
