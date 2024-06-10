@@ -62,7 +62,6 @@ class _PopupButtonState extends State<PopupButton> {
             ),
           ];
 
-          // Ajouter le bouton de déconnexion seulement si l'utilisateur n'est pas null
           if (user != null) {
             items.add(
               PopupMenuItem(

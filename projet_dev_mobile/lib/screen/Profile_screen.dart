@@ -1,25 +1,45 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widget/TextField.dart';
 import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final User user;
 
   const ProfilePage({Key? key, required this.user}) : super(key: key);
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String avatarPath = 'assets/avatars/Avatar1.png';
+  int avatarId = 2;
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatar();
+  }
+
+  void _loadAvatar() async {
+    final preferences = await SharedPreferences.getInstance();
+    avatarId = preferences.getInt('avatarId') ?? 1;
+    setState(() {
+      avatarPath = 'assets/avatars/Avatar$avatarId.png';
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Chemin absolu vers l'image avatar1.png dans le dossier avatars
-    String avatarPath = 'lib/avatars/Avatar1.png';
 
     return Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(
-            user.username,
+            widget.user.username,
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
           ),
         ),
@@ -46,7 +66,7 @@ class ProfilePage extends StatelessWidget {
                             child: CircleAvatar(
                               radius: 90,
                               backgroundColor: inputColor,
-                              backgroundImage: FileImage(File(avatarPath)),
+                              backgroundImage: AssetImage(avatarPath),
                             ),
                           ),
                           const SizedBox(height: 18),

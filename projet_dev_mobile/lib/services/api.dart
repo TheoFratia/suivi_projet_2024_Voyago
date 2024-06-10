@@ -99,7 +99,7 @@ class ApiManager {
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
       if (response.statusCode == 200) {
         final userData = json.decode(response.body);
-        return await fetchUserByUuid(userData['id'], token);
+        return await fetchUserByUuid(userData['id'], token, userData['avatarId']);
       } else{
         return null;
       }
@@ -110,12 +110,15 @@ class ApiManager {
 
 
 
-  Future<User?> fetchUserByUuid(String uuid, String token) async {
+  Future<User?> fetchUserByUuid(String uuid, String token, int avatarId) async {
     final uri = Uri.parse('$_baseUrl/user/$uuid');
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
 
       if (response.statusCode == 200) {
         final userData = json.decode(response.body);
+        final preferences = await SharedPreferences.getInstance();
+        preferences.setString('uuid', uuid);
+        preferences.setInt('avatarId', avatarId);
         return User.fromJson(userData);
       } else {
         return null;
