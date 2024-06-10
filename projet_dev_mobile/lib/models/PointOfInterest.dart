@@ -6,6 +6,7 @@ class PointOfInterest {
   String type;
   String titre;
   String status;
+  String imageLink;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -23,10 +24,11 @@ class PointOfInterest {
       link: json['link'],
       price: json['price'],
       titre: json['titre'],
+      imageLink: json['imageLink'],
     );
   }
 
-  PointOfInterest({required this.id, required this.type ,required this.status, required this.createdAt, required this.updatedAt, required this.description, required this.link, required this.price, required this.titre});
+  PointOfInterest({required this.id, required this.type ,required this.status, required this.createdAt, required this.updatedAt, required this.description, required this.link, required this.price, required this.titre, required this.imageLink});
 }
 
 
