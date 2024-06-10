@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
 import '../widget/TextField.dart';
@@ -7,10 +8,13 @@ import '../variables/colors.dart';
 class ProfilePage extends StatelessWidget {
   final User user;
 
-  const ProfilePage({super.key, required this.user});
+  const ProfilePage({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Chemin absolu vers l'image avatar1.png dans le dossier avatars
+    String avatarPath = 'lib/avatars/Avatar1.png';
+
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -36,13 +40,13 @@ class ProfilePage extends StatelessWidget {
                       const SizedBox(width: 20),
                       Column(
                         children: [
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 95,
                             backgroundColor: iconColor,
                             child: CircleAvatar(
                               radius: 90,
                               backgroundColor: inputColor,
-                              child: Icon(Icons.person, size: 120),
+                              backgroundImage: FileImage(File(avatarPath)),
                             ),
                           ),
                           const SizedBox(height: 18),
