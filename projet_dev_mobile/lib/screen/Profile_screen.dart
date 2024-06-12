@@ -1,12 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/Change_page.dart';
 import '../services/api.dart';
 import '../widget/TextField.dart';
 import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
+import 'login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   final User user;
@@ -34,6 +34,9 @@ class _ProfilePageState extends State<ProfilePage> {
     'assets/avatars/Avatar8.png',
     'assets/avatars/Avatar9.png',
   ];
+
+  String errorMessage = '';
+  String successMessage = '';
 
   @override
   void initState() {
@@ -90,16 +93,38 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _updateUser() async {
+    setState(() {
+      errorMessage = '';
+      successMessage = '';
+    });
+
     final apiManager = ApiManager();
     bool usernameChanged = username.isNotEmpty && username != widget.user.username;
     bool passwordChanged = password.isNotEmpty && password == confirmPassword;
 
-    if (usernameChanged && passwordChanged) {
-      await apiManager.updateAll(username, password);
-    } else if (usernameChanged) {
-      await apiManager.updateUsername(username);
-    } else if (passwordChanged) {
-      await apiManager.updatePassword(password);
+    try {
+      if (usernameChanged && passwordChanged) {
+        await apiManager.updateAll(username, password);
+      } else if (usernameChanged) {
+        await apiManager.updateUsername(username);
+      } else if (passwordChanged) {
+        await apiManager.updatePassword(password);
+      }
+
+      if (usernameChanged || passwordChanged) {
+        setState(() {
+          successMessage = 'Mise à jour réussie!';
+        });
+        NavigateAfterDelay(() => LoginScreen(), 5, context);
+      } else {
+        setState(() {
+          errorMessage = 'Aucune modification apportée.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = '$e';
+      });
     }
   }
 
@@ -132,10 +157,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       Column(
                         children: [
                           CircleAvatar(
-                              radius: 80,
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: AssetImage(avatarPath),
-                            ),
+                            radius: 80,
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: AssetImage(avatarPath),
+                          ),
                           const SizedBox(height: 18),
                           TextButton(
                             onPressed: () { _openAvatarDialog();},
@@ -157,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: buildTextField(
                                 'Nouveau nom d\'utilisateur',
                                 onChanged: (newValue) {
-                                    username = newValue;
+                                  username = newValue;
                                 },
                               ),
                             ),
@@ -171,6 +196,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               width: constraints.maxWidth * 0.7,
                               child: buildTextField('Confirmer mot de passe', obscureText: true, onChanged: (newValue) {confirmPassword = newValue;}),
                             ),
+                            if (errorMessage.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(errorMessage, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+                            ],
+                            if (successMessage.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(successMessage, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15)),
+                            ],
                           ],
                         ),
                       ),

@@ -149,62 +149,55 @@ class ApiManager {
 
   Future<void> updateUsername(String username) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = await preferences.getString('uuid') ?? '';
+    String _uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
     final url = Uri.parse('$_baseUrl/user/$_uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    final body = jsonEncode({
-      'username': username,
-    });
+    final body = jsonEncode({'username': username});
 
     final response = await http.put(url, headers: headers, body: body);
 
-    if (response.statusCode != 200) {
-      print('Failed to update profile: ${response.statusCode}');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Impossible de mettre à jour votre nom d\'utilisateur !');
     }
   }
 
   Future<void> updatePassword(String password) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = await preferences.getString('uuid') ?? '';
+    String _uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
     final url = Uri.parse('$_baseUrl/user/$_uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    final body = jsonEncode({
-      'password': password,
-    });
+    final body = jsonEncode({'password': password});
 
     final response = await http.put(url, headers: headers, body: body);
 
-    if (response.statusCode == 200) {
-      print('Failed to update profile: ${response.statusCode}');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Impossible de mettre à jour votre mot de passe !');
     }
   }
 
   Future<void> updateAll(String username, String password) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = await preferences.getString('uuid') ?? '';
+    String _uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
     final url = Uri.parse('$_baseUrl/user/$_uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
     };
-    final body = jsonEncode({
-      'username': username,
-      'password': password,
-    });
+    final body = jsonEncode({'username': username, 'password': password});
 
     final response = await http.put(url, headers: headers, body: body);
 
-    if (response.statusCode != 200) {
-      print('Failed to update profile: ${response.statusCode}');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('impossible de mettre vos identifiants !');
     }
   }
 }
