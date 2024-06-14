@@ -121,4 +121,22 @@ class ApiManager {
         return null;
       }
   }
+
+  Future<List<dynamic>> getAllImportantInformation() async {
+    final response = await http.get(Uri.parse('$_baseUrl/info'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load important information');
+    }
+  }
+
+  Future<List<dynamic>> getAllEssentialInformation() async {
+    final response = await http.get(Uri.parse('$_baseUrl/essential'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load essential information');
+    }
+  }
 }
