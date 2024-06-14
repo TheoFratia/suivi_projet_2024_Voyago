@@ -49,6 +49,7 @@ class _InformationPageState extends State<InformationPage> {
     loadSavedItems();
     fetchImportantInformation();
     fetchEssentialInformation();
+
   }
 
   Future<void> fetchInformationData() async {
@@ -93,31 +94,26 @@ class _InformationPageState extends State<InformationPage> {
   }
 
   Future<void> loadSavedItems() async {
-    preferences = await SharedPreferences.getInstance();
+    savedItems = await ApiManager().loadFavorites(context, 1745, 335);
     setState(() {
-      savedItems = preferences?.getStringList('savedItems')?.toSet() ?? {};
+      savedItems = savedItems.toSet();
     });
   }
 
   Future<void> toggleSaveItem(String itemId) async {
-    setState(() {
-      if (savedItems.contains(itemId)) {
-        savedItems.remove(itemId);
-      } else {
-        savedItems.add(itemId);
-      }
-    });
-
     try {
-      await preferences?.setStringList('savedItems', savedItems.toList());
-
-      if (savedItems.contains(itemId)) {
-        await ApiManager().saveFavorites(
-            context, [int.parse(itemId)], widget.geoId, widget.userId);
+      if (!savedItems.contains(itemId)) {
+        await ApiManager().saveFavorites(context, [int.parse(itemId)], widget.geoId, widget.userId);
       } else {
-        await ApiManager()
-            .deleteFavorites(context, int.parse(itemId), widget.userId);
+        await ApiManager().deleteFavorites(context, int.parse(itemId), widget.userId);
       }
+      setState(() {
+        if (savedItems.contains(itemId)) {
+          savedItems.remove(itemId);
+        } else {
+          savedItems.add(itemId);
+        }
+      });
     } catch (e) {
       throw Exception('Failed to save item');
     }

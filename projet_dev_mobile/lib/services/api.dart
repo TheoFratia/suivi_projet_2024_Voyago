@@ -160,7 +160,7 @@ class ApiManager {
     if (response.statusCode == 200) {
       preferences.setInt('avatarId', avatarId);
     } else {
-      print('Failed to update profile: ${response.statusCode}');
+      throw Exception('Failed to update avatar');
     }
   }
 
@@ -226,7 +226,7 @@ class ApiManager {
       'idGeo': {'id': geoId},
       'UserId': {'id': userId}
     });
-    print(bodyContent);
+
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
@@ -257,5 +257,31 @@ class ApiManager {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
     }
+  }
+
+  Future<Set<String>> loadFavorites(BuildContext context, int idGeo, int userId) async {
+    Set<String> idPointOfInterest = {};
+    final String apiUrl = '$_baseUrl/user/$userId/geo/$idGeo';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+    } else {
+      var data = jsonDecode(response.body) as List;
+      for (var item in data) {
+        var idPointOfInterestList = item['idPointOfInterest'] as List;
+        for (var id in idPointOfInterestList) {
+          idPointOfInterest.add(id['id'].toString());
+          print(id['id']);
+        }
+      }
+    }
+    print(idPointOfInterest);
+    return idPointOfInterest;
   }
 }
