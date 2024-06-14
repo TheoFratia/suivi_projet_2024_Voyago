@@ -1,6 +1,6 @@
 class User {
   final String uuid;
-  final String username;
+  late final String username;
 
   User({
     required this.uuid,

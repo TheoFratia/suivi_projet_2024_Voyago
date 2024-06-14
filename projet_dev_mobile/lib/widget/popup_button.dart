@@ -3,7 +3,6 @@ import 'package:projet_dev_mobile/screen/Profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user.dart';
 import '../../variables/colors.dart';
-import '../../variables/icons.dart';
 import '../../variables/profile_option.dart';
 import '../../services/api.dart';
 import '../screen/login_screen.dart';
@@ -20,6 +19,9 @@ class _PopupButtonState extends State<PopupButton> {
   late User? user;
   String username = ProfileOption.profile.value;
 
+  int? avatarId;
+  String? avatarPath;
+
   @override
   void initState(){
     super.initState();
@@ -29,10 +31,19 @@ class _PopupButtonState extends State<PopupButton> {
   void _loadUser() async {
     user =  await ApiManager().fetchUser();
     if (user != null) {
+      _loadAvatar();
       setState(() {
         username = user!.username;
       });
     }
+  }
+
+  void _loadAvatar() async {
+    final preferences = await SharedPreferences.getInstance();
+    avatarId = preferences.getInt('avatarId') ?? 1;
+    setState(() {
+      avatarPath = 'assets/avatars/Avatar$avatarId.png';
+    });
   }
 
   void _logout() async {
@@ -63,7 +74,6 @@ class _PopupButtonState extends State<PopupButton> {
             ),
           ];
 
-          // Ajouter le bouton de déconnexion seulement si l'utilisateur n'est pas null
           if (user != null) {
             items.add(
               PopupMenuItem(
@@ -84,7 +94,15 @@ class _PopupButtonState extends State<PopupButton> {
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage( user: user!)));
           }
         },
-        child: const Icon(iconProfile),
+        child: CircleAvatar(
+            radius: 25,
+            backgroundColor: Colors.white,
+            backgroundImage: avatarPath != null ? AssetImage(avatarPath!) : null,
+            child: avatarPath == null ? const Icon(
+              Icons.account_circle,
+              size: 36,
+            ) : null,
+          ),
       ),
     );
   }

@@ -28,7 +28,6 @@ class ApiManager {
     }
   }
 
-
   login(String name, String password) async {
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
@@ -38,7 +37,7 @@ class ApiManager {
       final Map<String, dynamic> user = json.decode(response.body);
       final preferences = await SharedPreferences.getInstance();
       preferences.setString('token', user['token']);
-      return null; // Indicate successful login (replace with appropriate action)
+      return null;
     } else if (response.statusCode == 401){
       return 'Nom d\'utilisateur ou mot de passe incorrect';
     }else {
@@ -99,7 +98,7 @@ class ApiManager {
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
       if (response.statusCode == 200) {
         final userData = json.decode(response.body);
-        return await fetchUserByUuid(userData['id'], token);
+        return await fetchUserByUuid(userData['id'], token, userData['avatarId']);
       } else{
         return null;
       }
@@ -110,12 +109,15 @@ class ApiManager {
 
 
 
-  Future<User?> fetchUserByUuid(String uuid, String token) async {
+  Future<User?> fetchUserByUuid(String uuid, String token, int avatarId) async {
     final uri = Uri.parse('$_baseUrl/user/$uuid');
       final response = await http.get(uri, headers: {'Authorization': 'Bearer $token',});
 
       if (response.statusCode == 200) {
         final userData = json.decode(response.body);
+        final preferences = await SharedPreferences.getInstance();
+        preferences.setString('uuid', uuid);
+        preferences.setInt('avatarId', avatarId);
         return User.fromJson(userData);
       } else {
         return null;
@@ -137,6 +139,120 @@ class ApiManager {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load essential information');
+  Future<void> updateAvatar(int avatarId) async {
+    final preferences = await SharedPreferences.getInstance();
+    String uuid = await preferences.getString('uuid') ?? '';
+    String token = preferences.getString('token') ?? '';
+    final url = Uri.parse('$_baseUrl/user/$uuid');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({
+      'avatarId': avatarId,
+    });
+
+    final response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      preferences.setInt('avatarId', avatarId);
+    } else {
+      print('Failed to update profile: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateUsername(String username) async {
+    final preferences = await SharedPreferences.getInstance();
+    String uuid = preferences.getString('uuid') ?? '';
+    String token = preferences.getString('token') ?? '';
+    final url = Uri.parse('$_baseUrl/user/$uuid');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({'username': username});
+
+    final response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Impossible de mettre à jour votre nom d\'utilisateur !');
+    }
+  }
+
+  Future<void> updatePassword(String password) async {
+    final preferences = await SharedPreferences.getInstance();
+    String uuid = preferences.getString('uuid') ?? '';
+    String token = preferences.getString('token') ?? '';
+    final url = Uri.parse('$_baseUrl/user/$uuid');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({'password': password});
+
+    final response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Impossible de mettre à jour votre mot de passe !');
+    }
+  }
+
+  Future<void> updateAll(String username, String password) async {
+    final preferences = await SharedPreferences.getInstance();
+    String uuid = preferences.getString('uuid') ?? '';
+    String token = preferences.getString('token') ?? '';
+    final url = Uri.parse('$_baseUrl/user/$uuid');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({'username': username, 'password': password});
+
+    final response = await http.put(url, headers: headers, body: body);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('impossible de mettre vos identifiants !');
+    }
+  }
+
+  Future<void> saveFavorites(BuildContext context, List<int> pointOfInterestIds, int geoId, int userId) async {
+    final String apiUrl = '$_baseUrl/save';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+    final bodyContent = jsonEncode({
+      'idPointOfInterest': pointOfInterestIds.map((id) => {'id': id}).toList(),
+      'idGeo': {'id': geoId},
+      'UserId': {'id': userId}
+    });
+    print(bodyContent);
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: bodyContent,
+    );
+
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+  }
+
+  Future<void> deleteFavorites(BuildContext context, int pointOfInterestIds, int userId) async {
+    final String apiUrl = '$_baseUrl/save';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+    final bodyContent = jsonEncode({
+      'idPointOfInterest': pointOfInterestIds,
+      "force": true,
+      'idUser': userId
+    });
+
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: bodyContent,
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
     }
   }
 }

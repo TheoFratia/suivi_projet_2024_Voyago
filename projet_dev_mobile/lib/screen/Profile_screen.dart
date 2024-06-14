@@ -1,25 +1,147 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../services/Change_page.dart';
+import '../services/api.dart';
 import '../widget/TextField.dart';
 import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
 import 'package:projet_dev_mobile/screen/home_screen.dart';
 import 'package:projet_dev_mobile/variables/icons.dart';
 import 'package:projet_dev_mobile/variables/colors.dart';
+import 'login_screen.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final User user;
 
-  const ProfilePage({Key? key, required this.user}) : super(key: key);
+  const ProfilePage({super.key, required this.user});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String username = '';
+  String password = '';
+  String confirmPassword = '';
+  String avatarPath = 'assets/avatars/Avatar1.png';
+  int avatarId = 2;
+  final List<String> avatars = [
+    'assets/avatars/Avatar1.png',
+    'assets/avatars/Avatar2.png',
+    'assets/avatars/Avatar3.png',
+    'assets/avatars/Avatar4.png',
+    'assets/avatars/Avatar5.png',
+    'assets/avatars/Avatar6.png',
+    'assets/avatars/Avatar7.png',
+    'assets/avatars/Avatar8.png',
+    'assets/avatars/Avatar9.png',
+  ];
+
+  String errorMessage = '';
+  String successMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatar();
+  }
+
+  void _loadAvatar() async {
+    final preferences = await SharedPreferences.getInstance();
+    avatarId = preferences.getInt('avatarId') ?? 1;
+    setState(() {
+      avatarPath = 'assets/avatars/Avatar$avatarId.png';
+    });
+  }
+
+  void _openAvatarDialog() async {
+    final selectedAvatar = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Choisir un avatar'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 4.0,
+                mainAxisSpacing: 4.0,
+              ),
+              itemCount: avatars.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context, avatars[index]);
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage(avatars[index]),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedAvatar != null) {
+      setState(() {
+        avatarPath = selectedAvatar;
+      });
+      ApiManager().updateAvatar(avatars.indexOf(selectedAvatar) + 1);
+    }
+  }
+
+  void _updateUser() async {
+    setState(() {
+      errorMessage = '';
+      successMessage = '';
+    });
+
+    final apiManager = ApiManager();
+    bool usernameChanged = username.isNotEmpty && username != widget.user.username;
+    bool passwordChanged = password.isNotEmpty && password == confirmPassword;
+
+    try {
+      if (usernameChanged && passwordChanged) {
+        await apiManager.updateAll(username, password);
+      } else if (usernameChanged) {
+        await apiManager.updateUsername(username);
+      } else if (passwordChanged) {
+        await apiManager.updatePassword(password);
+      }
+
+      if (usernameChanged || passwordChanged) {
+        setState(() {
+          successMessage = 'Mise à jour réussie!';
+        });
+        NavigateAfterDelay(() => LoginScreen(), 5, context);
+      } else {
+        setState(() {
+          errorMessage = 'Aucune modification apportée.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = '$e';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Chemin absolu vers l'image avatar1.png dans le dossier avatars
-    String avatarPath = 'lib/avatars/Avatar1.png';
 
     return Scaffold(
       appBar: AppBar(
+        title: Center(
+          child: Text(
+            widget.user.username,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
+          ),
+        ),
         backgroundColor: primary,
         title: Stack(
           children: [
@@ -61,17 +183,13 @@ class ProfilePage extends StatelessWidget {
                       Column(
                         children: [
                           CircleAvatar(
-                            radius: 95,
-                            backgroundColor: iconColor,
-                            child: CircleAvatar(
-                              radius: 90,
-                              backgroundColor: inputColor,
-                              backgroundImage: FileImage(File(avatarPath)),
-                            ),
+                            radius: 80,
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: AssetImage(avatarPath),
                           ),
                           const SizedBox(height: 18),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () { _openAvatarDialog();},
                             style: TextButton.styleFrom(
                               foregroundColor: informationButtonBackgroudColor,
                               backgroundColor: inputColor,
@@ -87,23 +205,31 @@ class ProfilePage extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Nouveau nom d\'utilisateur'),
+                              child: buildTextField(
+                                'Nouveau nom d\'utilisateur',
+                                onChanged: (newValue) {
+                                  username = newValue;
+                                },
+                              ),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Changer d\'adresse mail'),
+                              child: buildTextField('Nouveau mot de passe', obscureText: true, onChanged: (newValue) {password = newValue;}),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Nouveau mot de passe', obscureText: true),
+                              child: buildTextField('Confirmer mot de passe', obscureText: true, onChanged: (newValue) {confirmPassword = newValue;}),
                             ),
-                            const SizedBox(height: 30),
-                            SizedBox(
-                              width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Confirmer mot de passe', obscureText: true),
-                            ),
+                            if (errorMessage.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(errorMessage, style: const TextStyle(color: deleteColor, fontWeight: FontWeight.bold, fontSize: 15)),
+                            ],
+                            if (successMessage.isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              Text(successMessage, style: const TextStyle(color: acceptColor, fontWeight: FontWeight.bold, fontSize: 15)),
+                            ],
                           ],
                         ),
                       ),
@@ -122,10 +248,10 @@ class ProfilePage extends StatelessWidget {
                             child: const Text('Supprimer votre compte', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ),
                         ),
-                        const SizedBox(width: 20), // Espacement entre les boutons
-                        Flexible( // Utilisation de Flexible pour rendre le bouton "Sauvegarder" flexible
+                        const SizedBox(width: 20),
+                        Flexible(
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {_updateUser();},
                             style: ElevatedButton.styleFrom(backgroundColor: acceptColor),
                             child: const Text('Sauvegarder', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ),
