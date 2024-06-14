@@ -7,6 +7,7 @@ import '../../variables/icons.dart';
 import '../../variables/profile_option.dart';
 import '../../services/api.dart';
 import '../screen/login_screen.dart';
+import 'package:projet_dev_mobile/screen/home_screen.dart';
 
 class PopupButton extends StatefulWidget {
   const PopupButton({super.key});
@@ -37,7 +38,7 @@ class _PopupButtonState extends State<PopupButton> {
   void _logout() async {
     final preferences = await SharedPreferences.getInstance();
     preferences.remove('token');
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => LoginScreen()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const Home()));
   }
 
   @override

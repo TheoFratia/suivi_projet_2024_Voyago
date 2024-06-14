@@ -15,3 +15,4 @@ const errorBorderColor = Colors.red;
 const borderColorHome = Color.fromRGBO(130, 205, 249, 1);
 const deleteColor = Colors.red;
 const acceptColor = Colors.green;
+const arrowColor = Colors.white;

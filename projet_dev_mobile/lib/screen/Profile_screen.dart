@@ -4,6 +4,9 @@ import 'package:projet_dev_mobile/models/user.dart';
 import '../widget/TextField.dart';
 import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
+import 'package:projet_dev_mobile/screen/home_screen.dart';
+import 'package:projet_dev_mobile/variables/icons.dart';
+import 'package:projet_dev_mobile/variables/colors.dart';
 
 class ProfilePage extends StatelessWidget {
   final User user;
@@ -17,13 +20,30 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            user.username,
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
-          ),
-        ),
         backgroundColor: primary,
+        title: Stack(
+          children: [
+            Center(
+              child: Text(
+                user.username,
+                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: IconButton(
+                icon: const Icon(iconArrow, color: arrowColor),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const Home(),
+                  ));
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
