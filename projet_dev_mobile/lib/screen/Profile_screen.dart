@@ -8,7 +8,6 @@ import '../widget/VoyageField.dart';
 import '../variables/colors.dart';
 import 'package:projet_dev_mobile/screen/home_screen.dart';
 import 'package:projet_dev_mobile/variables/icons.dart';
-import 'package:projet_dev_mobile/variables/colors.dart';
 import 'login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -136,18 +135,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            widget.user.username,
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
-          ),
-        ),
         backgroundColor: primary,
         title: Stack(
           children: [
             Center(
               child: Text(
-                user.username,
+                widget.user.username,
                 style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: titreColor),
               ),
             ),

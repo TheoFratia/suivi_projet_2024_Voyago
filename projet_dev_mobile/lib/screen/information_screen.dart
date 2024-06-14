@@ -1,46 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:projet_dev_mobile/variables/icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../Widget/popup_button.dart';
+import '../models/EssentialInformation.dart';
 import '../models/ImportantInformation.dart';
 import '../models/PointOfInterest.dart';
-import '../models/EssentialInformation.dart';
 import '../services/api.dart';
-import '../variables/informationOption.dart';
-import 'package:projet_dev_mobile/screen/home_screen.dart';
-import 'package:projet_dev_mobile/variables/icons.dart';
-import 'package:projet_dev_mobile/variables/colors.dart';
+import '../variables/colors.dart';
+import 'home_screen.dart';
 
-class Information extends StatefulWidget {
+enum InformationOption {
+  activities,
+  hotel,
+  important,
+  essential,
+}
+
+class InformationPage extends StatefulWidget {
   final String destination;
   final int userId;
   final int geoId;
-  const Information({super.key, required this.destination, required this.userId, required this.geoId});
+
+  const InformationPage({
+    super.key,
+    required this.destination,
+    required this.userId,
+    required this.geoId,
+  });
 
   @override
-  State<Information> createState() => _InformationState();
+  _InformationPageState createState() => _InformationPageState();
 }
 
-class _InformationState extends State<Information> {
-  String selectedOption = InformationOption.activities.value;
+class _InformationPageState extends State<InformationPage> {
+  String selectedOption = InformationOption.activities.toString();
   List<PointOfInterest> filteredActivities = [];
   List<PointOfInterest> filteredHotels = [];
   List<ImportantInformation> importantInformation = [];
   List<EssentialInformation> essentialInformation = [];
   Set<String> savedItems = {};
+  SharedPreferences? preferences;
 
   @override
   void initState() {
     super.initState();
     fetchInformationData();
     loadSavedItems();
-    fetchInformationData();
     fetchImportantInformation();
     fetchEssentialInformation();
   }
 
   Future<void> fetchInformationData() async {
     final data =
-    await ApiManager().loadInformationData(context, widget.destination);
+        await ApiManager().loadInformationData(context, widget.destination);
     setState(() {
       filteredActivities = data
           .where((geo) => geo.pointOfInterest != null)
@@ -56,13 +69,11 @@ class _InformationState extends State<Information> {
   }
 
   Future<void> fetchImportantInformation() async {
-    final List<dynamic> infoData =
-    await ApiManager().getAllImportantInformation();
+    final infoData = await ApiManager().getAllImportantInformation();
     setState(() {
       importantInformation = infoData
-          .where((info) =>
-          info['idGeo'].any((geo) =>
-          geo['city'] == widget.destination ||
+          .where((info) => info['idGeo'].any((geo) =>
+              geo['city'] == widget.destination ||
               geo['country'] == widget.destination))
           .map((info) => ImportantInformation.fromJson(info))
           .toList();
@@ -70,12 +81,11 @@ class _InformationState extends State<Information> {
   }
 
   Future<void> fetchEssentialInformation() async {
-    final List<dynamic> infoData = await ApiManager().getAllEssentialInformation();
+    final infoData = await ApiManager().getAllEssentialInformation();
     setState(() {
       essentialInformation = infoData
-          .where((info) =>
-          info['idGeo'].any((geo) =>
-          geo['city'] == widget.destination ||
+          .where((info) => info['idGeo'].any((geo) =>
+              geo['city'] == widget.destination ||
               geo['country'] == widget.destination))
           .map((info) => EssentialInformation.fromJson(info))
           .toList();
@@ -89,26 +99,27 @@ class _InformationState extends State<Information> {
     });
   }
 
-  Future<void> toggleSaveItem(int poi) async {
-    List<int> savedItemsList = [];
+  Future<void> toggleSaveItem(String itemId) async {
     setState(() {
-      if (savedItems.contains(poi.toString())) {
-        savedItems.remove(poi.toString());
+      if (savedItems.contains(itemId)) {
+        savedItems.remove(itemId);
       } else {
-        savedItems.add(poi.toString());
+        savedItems.add(itemId);
       }
     });
-    await preferences?.setStringList('savedItems', savedItems.toList());
 
-    savedItemsList.add(poi);
     try {
-      if (savedItems.contains(poi.toString())) {
-        await ApiManager().saveFavorites(context, savedItemsList, widget.geoId, widget.userId);
+      await preferences?.setStringList('savedItems', savedItems.toList());
+
+      if (savedItems.contains(itemId)) {
+        await ApiManager().saveFavorites(
+            context, [int.parse(itemId)], widget.geoId, widget.userId);
       } else {
-        await ApiManager().deleteFavorites(context, poi, widget.userId);
+        await ApiManager()
+            .deleteFavorites(context, int.parse(itemId), widget.userId);
       }
     } catch (e) {
-      print('Failed to save favorites: $e');
+      throw Exception('Failed to save item');
     }
   }
 
@@ -126,7 +137,7 @@ class _InformationState extends State<Information> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              height: 120,
+              height: 200,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(15),
@@ -178,30 +189,37 @@ class _InformationState extends State<Information> {
                       child: ElevatedButton(
                         onPressed: () async {
                           final url = item.link;
-                          if (await canLaunchUrl(url as Uri)) {
-                            await launchUrl(url as Uri);
+                          if (await canLaunch(url)) {
+                            await launch(url);
                           } else {
                             throw 'Could not launch $url';
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: informationButtonBackgroudColor,
+                          backgroundColor: primary,
                           padding: EdgeInsets.zero,
-                          minimumSize: Size(MediaQuery.of(context).size.width / 2 - 15, 40),
+                          minimumSize: Size(
+                              MediaQuery.of(context).size.width / 2 - 15, 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text('Book Now', style: TextStyle(color: informationButtonTextColor)),
+                        child: const Text('Book Now',
+                            style:
+                                TextStyle(color: informationButtonTextColor)),
                       ),
                     ),
                     IconButton(
                       icon: Icon(
-                        savedItems.contains(item.id.toString()) ? Icons.favorite : Icons.favorite_border,
-                        color: savedItems.contains(item.id.toString()) ? Colors.red : Colors.grey,
+                        savedItems.contains(item.id.toString())
+                            ? iconSelectedHeart
+                            : iconHeart,
+                        color: savedItems.contains(item.id.toString())
+                            ? heartSelectColor
+                            : heartColor,
                       ),
                       onPressed: () {
-                        toggleSaveItem(item.id);
+                        toggleSaveItem(item.id.toString());
                       },
                     ),
                   ],
@@ -257,7 +275,7 @@ class _InformationState extends State<Information> {
                 height: 50,
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: inputColor,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(90),
                 ),
                 child: Row(
@@ -267,7 +285,7 @@ class _InformationState extends State<Information> {
                         onTap: () {
                           setState(() {
                             selectedOption =
-                                InformationOption.activities.value;
+                                InformationOption.activities.toString();
                           });
                         },
                         child: Text(
@@ -277,7 +295,7 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption ==
-                                InformationOption.activities.value
+                                    InformationOption.activities.toString()
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -288,7 +306,7 @@ class _InformationState extends State<Information> {
                       child: InkWell(
                         onTap: () {
                           setState(() {
-                            selectedOption = InformationOption.hotel.value;
+                            selectedOption = InformationOption.hotel.toString();
                           });
                         },
                         child: Text(
@@ -298,7 +316,7 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption ==
-                                InformationOption.hotel.value
+                                    InformationOption.hotel.toString()
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -310,7 +328,7 @@ class _InformationState extends State<Information> {
                         onTap: () {
                           setState(() {
                             selectedOption =
-                                InformationOption.important.value;
+                                InformationOption.important.toString();
                           });
                         },
                         child: Text(
@@ -320,7 +338,7 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption ==
-                                InformationOption.important.value
+                                    InformationOption.important.toString()
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -332,7 +350,7 @@ class _InformationState extends State<Information> {
                         onTap: () {
                           setState(() {
                             selectedOption =
-                                InformationOption.essential.value;
+                                InformationOption.essential.toString();
                           });
                         },
                         child: Text(
@@ -342,7 +360,7 @@ class _InformationState extends State<Information> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: selectedOption ==
-                                InformationOption.essential.value
+                                    InformationOption.essential.toString()
                                 ? selectedTextColor
                                 : notSelectedTextColor,
                           ),
@@ -352,380 +370,111 @@ class _InformationState extends State<Information> {
                   ],
                 ),
               ),
-              if (selectedOption == InformationOption.activities.value)
-                Expanded(
-                  child: Wrap(
-                    spacing: 10.0,
-                    runSpacing: 10.0,
-                    children: filteredActivities.map<Widget>((activity) {
-                      return SizedBox(
-                        width: MediaQuery.of(context).size.width / 2 - 5,
-                        height: 500,
-                        child: Card(
-                          color: cardColor,
-                          margin: const EdgeInsets.all(10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(
-                                height: 200,
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(15),
-                                  ),
-                                  child: Image.network(
-                                    activity.imageLink,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.stretch,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          activity.titre,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0),
-                                        child: Text(
-                                          activity.description,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          '${activity.price}€',
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ElevatedButton(
-                                          onPressed: () async {
-                                            final url =
-                                            Uri.parse(activity.link);
-                                            if (await canLaunch(url as String)) {
-                                              await launch(url as String);
-                                            } else {
-                                              throw 'Could not launch $url';
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                            informationButtonBackgroudColor,
-                                            padding: EdgeInsets.zero,
-                                            minimumSize: Size(
-                                              MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                                  2 -
-                                                  15,
-                                              40,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                              BorderRadius.circular(15),
-                                            ),
-                                          ),
-                                          child: const Text('Book Now',
-                                              style: TextStyle(
-                                                  color:
-                                                  informationButtonTextColor)),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (selectedOption ==
+                          InformationOption.activities.toString())
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: filteredActivities.map<Widget>((activity) {
+                            return buildCard(activity, true);
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
+                      if (selectedOption == InformationOption.hotel.toString())
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: filteredHotels.map<Widget>((hotel) {
+                            return buildCard(hotel, false);
+                          }).toList(),
+                        ),
+                      if (selectedOption ==
+                          InformationOption.important.toString())
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: importantInformation.map<Widget>((info) {
+                            return buildInformationCard(info);
+                          }).toList(),
+                        ),
+                      if (selectedOption ==
+                          InformationOption.essential.toString())
+                        Wrap(
+                          spacing: 10.0,
+                          runSpacing: 10.0,
+                          children: essentialInformation.map<Widget>((info) {
+                            return buildInformationCard(info);
+                          }).toList(),
+                        ),
+                    ],
                   ),
                 ),
-              if (selectedOption == InformationOption.hotel.value)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 10.0,
-                      runSpacing: 10.0,
-                      children: filteredHotels.map<Widget>((hotel) {
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 5,
-                          height: 500,
-                          child: Card(
-                            color: cardColor,
-                            margin: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(15),
-                                    ),
-                                    child: Image.network(
-                                      hotel.imageLink,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            hotel.titre,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            hotel.description,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            '${hotel.price}€',
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: ElevatedButton(
-                                            onPressed: () async {
-                                              final url =
-                                              Uri.parse(hotel.link);
-                                              if (await canLaunch(
-                                                  url as String)) {
-                                                await launch(url as String);
-                                              } else {
-                                                throw 'Could not launch $url';
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                              informationButtonBackgroudColor,
-                                              padding: EdgeInsets.zero,
-                                              minimumSize: Size(
-                                                MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                    2 -
-                                                    15,
-                                                40,
-                                              ),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                BorderRadius.circular(15),
-                                              ),
-                                            ),
-                                            child: const Text('Book Now',
-                                                style: TextStyle(
-                                                    color:
-                                                    informationButtonTextColor)),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              if (selectedOption == InformationOption.important.value)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 10.0,
-                      runSpacing: 10.0,
-                      children: importantInformation.map<Widget>((info) {
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 5,
-                          height: 500,
-                          child: Card(
-                            color: cardColor,
-                            margin: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(15),
-                                    ),
-                                    child: Image.network(
-                                      info.imageLink,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            info.titre,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            info.description,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              if (selectedOption == InformationOption.essential.value)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 10.0,
-                      runSpacing: 10.0,
-                      children: essentialInformation.map<Widget>((info) {
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width / 2 - 5,
-                          height: 500,
-                          child: Card(
-                            color: cardColor,
-                            margin: const EdgeInsets.all(10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(15),
-                                    ),
-                                    child: Image.network(
-                                      info.imageLink,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            info.titre,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8.0),
-                                          child: Text(
-                                            info.description,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ),
-                                        // Vous pouvez ajouter d'autres champs d'information ici selon votre modèle EssentialInformation
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildInformationCard(dynamic info) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width / 2 - 5,
+      height: 500,
+      child: Card(
+        color: cardColor,
+        margin: const EdgeInsets.all(10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 200,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(15),
+                ),
+                child: Image.network(
+                  info.imageLink,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        info.titre,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        info.description,
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

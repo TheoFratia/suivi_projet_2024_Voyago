@@ -139,6 +139,9 @@ class ApiManager {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to load essential information');
+    }
+  }
+
   Future<void> updateAvatar(int avatarId) async {
     final preferences = await SharedPreferences.getInstance();
     String uuid = await preferences.getString('uuid') ?? '';
