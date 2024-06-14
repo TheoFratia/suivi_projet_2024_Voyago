@@ -28,7 +28,6 @@ class ApiManager {
     }
   }
 
-
   login(String name, String password) async {
     final bodyContent = jsonEncode({'username': name, 'password': password,});
 
@@ -38,7 +37,7 @@ class ApiManager {
       final Map<String, dynamic> user = json.decode(response.body);
       final preferences = await SharedPreferences.getInstance();
       preferences.setString('token', user['token']);
-      return null; // Indicate successful login (replace with appropriate action)
+      return null;
     } else if (response.statusCode == 401){
       return 'Nom d\'utilisateur ou mot de passe incorrect';
     }else {
@@ -127,9 +126,9 @@ class ApiManager {
 
   Future<void> updateAvatar(int avatarId) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = await preferences.getString('uuid') ?? '';
+    String uuid = await preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
-    final url = Uri.parse('$_baseUrl/user/$_uuid');
+    final url = Uri.parse('$_baseUrl/user/$uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -149,9 +148,9 @@ class ApiManager {
 
   Future<void> updateUsername(String username) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = preferences.getString('uuid') ?? '';
+    String uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
-    final url = Uri.parse('$_baseUrl/user/$_uuid');
+    final url = Uri.parse('$_baseUrl/user/$uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -167,9 +166,9 @@ class ApiManager {
 
   Future<void> updatePassword(String password) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = preferences.getString('uuid') ?? '';
+    String uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
-    final url = Uri.parse('$_baseUrl/user/$_uuid');
+    final url = Uri.parse('$_baseUrl/user/$uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -185,9 +184,9 @@ class ApiManager {
 
   Future<void> updateAll(String username, String password) async {
     final preferences = await SharedPreferences.getInstance();
-    String _uuid = preferences.getString('uuid') ?? '';
+    String uuid = preferences.getString('uuid') ?? '';
     String token = preferences.getString('token') ?? '';
-    final url = Uri.parse('$_baseUrl/user/$_uuid');
+    final url = Uri.parse('$_baseUrl/user/$uuid');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -198,6 +197,47 @@ class ApiManager {
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('impossible de mettre vos identifiants !');
+    }
+  }
+
+  Future<void> saveFavorites(BuildContext context, List<int> pointOfInterestIds, int geoId, int userId) async {
+    final String apiUrl = '$_baseUrl/save';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+    final bodyContent = jsonEncode({
+      'idPointOfInterest': pointOfInterestIds.map((id) => {'id': id}).toList(),
+      'idGeo': {'id': geoId},
+      'UserId': {'id': userId}
+    });
+    print(bodyContent);
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: bodyContent,
+    );
+
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+  }
+
+  Future<void> deleteFavorites(BuildContext context, int pointOfInterestIds, int userId) async {
+    final String apiUrl = '$_baseUrl/save';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+    final bodyContent = jsonEncode({
+      'idPointOfInterest': pointOfInterestIds,
+      "force": true,
+      'idUser': userId
+    });
+
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: bodyContent,
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
     }
   }
 }

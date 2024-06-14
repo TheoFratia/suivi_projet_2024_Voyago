@@ -15,3 +15,5 @@ const errorBorderColor = Colors.red;
 const borderColorHome = Color.fromRGBO(130, 205, 249, 1);
 const deleteColor = Colors.red;
 const acceptColor = Colors.green;
+const heartSelectColor = Color.fromRGBO(255, 103, 157, 1);
+const heartColor = Colors.grey;

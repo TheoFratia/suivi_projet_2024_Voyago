@@ -11,7 +11,7 @@ import 'login_screen.dart';
 class ProfilePage extends StatefulWidget {
   final User user;
 
-  const ProfilePage({Key? key, required this.user}) : super(key: key);
+  const ProfilePage({super.key, required this.user});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -198,11 +198,11 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             if (errorMessage.isNotEmpty) ...[
                               const SizedBox(height: 10),
-                              Text(errorMessage, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text(errorMessage, style: const TextStyle(color: deleteColor, fontWeight: FontWeight.bold, fontSize: 15)),
                             ],
                             if (successMessage.isNotEmpty) ...[
                               const SizedBox(height: 10),
-                              Text(successMessage, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text(successMessage, style: const TextStyle(color: acceptColor, fontWeight: FontWeight.bold, fontSize: 15)),
                             ],
                           ],
                         ),

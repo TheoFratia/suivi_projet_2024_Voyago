@@ -32,7 +32,7 @@ class _HomeState extends State<Home> {
   void searchDestination() {
     if (estPresentDansListe(destination, listLieux)) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => Information(destination: destination),));
+        builder: (context) => Information(destination: destination, userId: 335, geoId: 1745,),));
     }
     else {
       setState(() {
