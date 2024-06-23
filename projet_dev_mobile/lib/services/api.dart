@@ -7,7 +7,6 @@ import '../models/user.dart';
 import '../screen/login_screen.dart';
 
 class ApiManager {
-  final String _baseUrl = 'http://10.70.5.37:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
     final uri = Uri.parse('$_baseUrl/geo');
@@ -218,13 +217,13 @@ class ApiManager {
     }
   }
 
-  Future<void> saveFavorites(BuildContext context, List<int> pointOfInterestIds, int geoId, int userId) async {
+  Future<void> saveFavorites(BuildContext context, List<int> pointOfInterestIds, String userUuid, String name) async {
     final String apiUrl = '$_baseUrl/save';
     String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
     final bodyContent = jsonEncode({
       'idPointOfInterest': pointOfInterestIds.map((id) => {'id': id}).toList(),
-      'idGeo': {'id': geoId},
-      'UserId': {'id': userId}
+      'name': name,
+      'uuid': userUuid
     });
 
     final response = await http.post(
@@ -239,13 +238,13 @@ class ApiManager {
     }
   }
 
-  Future<void> deleteFavorites(BuildContext context, int pointOfInterestIds, int userId) async {
+  Future<void> deleteFavorites(BuildContext context, int pointOfInterestIds, String userUuid) async {
     final String apiUrl = '$_baseUrl/save';
     String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
     final bodyContent = jsonEncode({
       'idPointOfInterest': pointOfInterestIds,
       "force": true,
-      'idUser': userId
+      'uuid': userUuid
     });
 
     final response = await http.delete(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_dev_mobile/models/user.dart';
 import 'package:projet_dev_mobile/variables/icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,6 +10,7 @@ import '../models/PointOfInterest.dart';
 import '../services/api.dart';
 import '../variables/colors.dart';
 import 'home_screen.dart';
+import 'login_screen.dart';
 
 enum InformationOption {
   activities,
@@ -19,14 +21,10 @@ enum InformationOption {
 
 class InformationPage extends StatefulWidget {
   final String destination;
-  final int userId;
-  final int geoId;
 
   const InformationPage({
     super.key,
     required this.destination,
-    required this.userId,
-    required this.geoId,
   });
 
   @override
@@ -41,15 +39,23 @@ class _InformationPageState extends State<InformationPage> {
   List<EssentialInformation> essentialInformation = [];
   Set<String> savedItems = {};
   SharedPreferences? preferences;
+  late User? user;
 
   @override
   void initState() {
     super.initState();
     fetchInformationData();
-    loadSavedItems();
     fetchImportantInformation();
     fetchEssentialInformation();
+    _loadUser();
+  }
 
+  void _loadUser() async {
+    user =  await ApiManager().fetchUser();
+    print(user?.username);
+    if (user != null) {
+      loadSavedItems();
+    }
   }
 
   Future<void> fetchInformationData() async {
@@ -102,10 +108,15 @@ class _InformationPageState extends State<InformationPage> {
 
   Future<void> toggleSaveItem(String itemId) async {
     try {
-      if (!savedItems.contains(itemId)) {
-        await ApiManager().saveFavorites(context, [int.parse(itemId)], widget.geoId, widget.userId);
-      } else {
-        await ApiManager().deleteFavorites(context, int.parse(itemId), widget.userId);
+      if (!savedItems.contains(itemId) && user != null) {
+        print('saving item');
+        await ApiManager().saveFavorites(context, [int.parse(itemId)], user!.uuid, widget.destination);
+      } else if (user != null) {
+        print('deleting item');
+        await ApiManager().deleteFavorites(context, int.parse(itemId), user!.uuid);
+      }
+      else {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
       }
       setState(() {
         if (savedItems.contains(itemId)) {
