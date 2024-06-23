@@ -258,9 +258,9 @@ class ApiManager {
     }
   }
 
-  Future<Set<String>> loadFavorites(BuildContext context, int idGeo, int userId) async {
+  Future<Set<String>> loadFavorites(BuildContext context, String name, String uuid) async {
     Set<String> idPointOfInterest = {};
-    final String apiUrl = '$_baseUrl/user/$userId/geo/$idGeo';
+    final String apiUrl = '$_baseUrl/saves/$uuid/$name';
     String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
 
     final response = await http.get(
@@ -276,7 +276,6 @@ class ApiManager {
         var idPointOfInterestList = item['idPointOfInterest'] as List;
         for (var id in idPointOfInterestList) {
           idPointOfInterest.add(id['id'].toString());
-          print(id['id']);
         }
       }
     }
