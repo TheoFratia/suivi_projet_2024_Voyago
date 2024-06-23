@@ -100,7 +100,7 @@ class _InformationPageState extends State<InformationPage> {
   }
 
   Future<void> loadSavedItems() async {
-    savedItems = await ApiManager().loadFavorites(context, 1745, 335);
+    savedItems = await ApiManager().loadFavorites(context, widget.destination, user!.uuid);
     setState(() {
       savedItems = savedItems.toSet();
     });

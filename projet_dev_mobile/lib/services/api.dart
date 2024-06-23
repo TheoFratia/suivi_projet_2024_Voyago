@@ -7,6 +7,7 @@ import '../models/user.dart';
 import '../screen/login_screen.dart';
 
 class ApiManager {
+  final String _baseUrl = 'http://192.168.1.66:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
     final uri = Uri.parse('$_baseUrl/geo');
