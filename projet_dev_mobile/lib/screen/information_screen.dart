@@ -52,7 +52,6 @@ class _InformationPageState extends State<InformationPage> {
 
   void _loadUser() async {
     user =  await ApiManager().fetchUser();
-    print(user?.username);
     if (user != null) {
       loadSavedItems();
     }
@@ -109,10 +108,8 @@ class _InformationPageState extends State<InformationPage> {
   Future<void> toggleSaveItem(String itemId) async {
     try {
       if (!savedItems.contains(itemId) && user != null) {
-        print('saving item');
         await ApiManager().saveFavorites(context, [int.parse(itemId)], user!.uuid, widget.destination);
       } else if (user != null) {
-        print('deleting item');
         await ApiManager().deleteFavorites(context, int.parse(itemId), user!.uuid);
       }
       else {

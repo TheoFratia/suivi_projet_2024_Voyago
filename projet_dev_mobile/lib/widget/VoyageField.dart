@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 class TravelCard extends StatelessWidget {
   final String destination;
-  final String budget;
   final String price;
 
   const TravelCard({super.key,
     required this.destination,
-    required this.budget,
     required this.price,
   });
 
@@ -35,8 +33,6 @@ class TravelCard extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text('Budget : $budget'),
-          const SizedBox(height: 4),
           Text('prix total : $price'),
         ],
       ),

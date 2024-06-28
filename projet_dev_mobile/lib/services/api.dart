@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/geo.dart';
 import '../models/user.dart';
 import '../screen/login_screen.dart';
+import '../models/location.dart';
 
 class ApiManager {
   final String _baseUrl = 'http://192.168.1.66:8000/api';
@@ -233,7 +234,6 @@ class ApiManager {
       body: bodyContent,
     );
 
-
     if (response.statusCode < 200 || response.statusCode >= 300) {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
     }
@@ -280,7 +280,25 @@ class ApiManager {
         }
       }
     }
-    print(idPointOfInterest);
     return idPointOfInterest;
+  }
+
+  Future<List<Location>> loadMyFavorites(BuildContext context, String uuid) async {
+    final String apiUrl = '$_baseUrl/saves/$uuid';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+      return [];
+    } else {
+      var data = jsonDecode(response.body) as List;
+      List<Location> locations = data.map((item) => Location.fromJson(item)).toList();
+      return locations;
+    }
   }
 }

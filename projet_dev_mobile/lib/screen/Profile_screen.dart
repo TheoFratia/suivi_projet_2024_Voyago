@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projet_dev_mobile/models/location.dart';
 import 'package:projet_dev_mobile/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/Change_page.dart';
@@ -13,7 +14,7 @@ import 'login_screen.dart';
 class ProfilePage extends StatefulWidget {
   final User user;
 
-  const ProfilePage({super.key, required this.user});
+  const ProfilePage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -39,12 +40,35 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String errorMessage = '';
   String successMessage = '';
+  late List<Location> myFavorites = [];
+  late User? user;
 
   @override
   void initState() {
     super.initState();
     _loadAvatar();
+    _loadUser();
   }
+
+  void _loadMyFavorites() async {
+    try {
+      List<Location> favorites = await ApiManager().loadMyFavorites(context, widget.user.uuid);
+      setState(() {
+        myFavorites = favorites;
+      });
+    } catch (e) {
+      print('Error loading favorites: $e');
+      // Handle error if needed
+    }
+  }
+
+  void _loadUser() async {
+    user = await ApiManager().fetchUser();
+    if (user != null) {
+      _loadMyFavorites();
+    }
+  }
+
 
   void _loadAvatar() async {
     final preferences = await SharedPreferences.getInstance();
@@ -132,7 +156,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primary,
@@ -182,7 +205,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: 18),
                           TextButton(
-                            onPressed: () { _openAvatarDialog();},
+                            onPressed: () {
+                              _openAvatarDialog();
+                            },
                             style: TextButton.styleFrom(
                               foregroundColor: informationButtonBackgroudColor,
                               backgroundColor: inputColor,
@@ -208,12 +233,16 @@ class _ProfilePageState extends State<ProfilePage> {
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Nouveau mot de passe', obscureText: true, onChanged: (newValue) {password = newValue;}),
+                              child: buildTextField('Nouveau mot de passe', obscureText: true, onChanged: (newValue) {
+                                password = newValue;
+                              }),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: constraints.maxWidth * 0.7,
-                              child: buildTextField('Confirmer mot de passe', obscureText: true, onChanged: (newValue) {confirmPassword = newValue;}),
+                              child: buildTextField('Confirmer mot de passe', obscureText: true, onChanged: (newValue) {
+                                confirmPassword = newValue;
+                              }),
                             ),
                             if (errorMessage.isNotEmpty) ...[
                               const SizedBox(height: 10),
@@ -244,7 +273,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(width: 20),
                         Flexible(
                           child: ElevatedButton(
-                            onPressed: () {_updateUser();},
+                            onPressed: () {
+                              _updateUser();
+                            },
                             style: ElevatedButton.styleFrom(backgroundColor: acceptColor),
                             child: const Text('Sauvegarder', style: TextStyle(color: textColor, fontWeight: FontWeight.bold)),
                           ),
@@ -260,20 +291,21 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TravelCard(
-                        destination: 'Paris',
-                        budget: 'Aucun budget',
-                        price: '899,16€',
-                      ),
-                      TravelCard(
-                        destination: 'New-York',
-                        budget: '1 500€',
-                        price: '1 200€',
-                      ),
-                    ],
+                  // Dynamically build TravelCards from myFavorites
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: myFavorites.length,
+                    itemBuilder: (context, index) {
+                      Location location = myFavorites[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0), // Marge de 16 pixels en bas
+                        child: TravelCard(
+                          destination: location.name,
+                          price: '${location.totalPrice}€', // Met à jour avec les données de prix actuelles
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
