@@ -62,6 +62,18 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _deleteFavorite(Location location) async {
+    try {
+      await ApiManager().deleteFavoriteLocation(context, location.name, widget.user.uuid);
+      setState(() {
+        myFavorites.remove(location);
+      });
+    } catch (e) {
+      print('Error deleting favorite: $e');
+      // Handle error if needed
+    }
+  }
+
   void _loadUser() async {
     user = await ApiManager().fetchUser();
     if (user != null) {
@@ -291,7 +303,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Dynamically build TravelCards from myFavorites
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -299,10 +310,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     itemBuilder: (context, index) {
                       Location location = myFavorites[index];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0), // Marge de 16 pixels en bas
+                        padding: const EdgeInsets.only(bottom: 16.0),
                         child: TravelCard(
                           destination: location.name,
-                          price: '${location.totalPrice}€', // Met à jour avec les données de prix actuelles
+                          price: '${location.totalPrice} €',
+                          onDelete: () { _deleteFavorite(location); },
                         ),
                       );
                     },

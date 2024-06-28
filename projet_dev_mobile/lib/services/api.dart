@@ -8,7 +8,7 @@ import '../screen/login_screen.dart';
 import '../models/location.dart';
 
 class ApiManager {
-  final String _baseUrl = 'http://192.168.1.66:8000/api';
+  final String _baseUrl = 'http://192.168.1.14:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
     final uri = Uri.parse('$_baseUrl/geo');
@@ -301,4 +301,21 @@ class ApiManager {
       return locations;
     }
   }
+
+  Future<void> deleteFavoriteLocation(BuildContext context, String name, String uuid) async {
+    final String apiUrl = '$_baseUrl/saves';
+    String token = (await SharedPreferences.getInstance()).getString('token') ?? '';
+
+    final bodyContent = jsonEncode({'name': name, 'uuid': uuid,});
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+      body: bodyContent,
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+  }
+
 }
