@@ -21,10 +21,12 @@ enum InformationOption {
 
 class InformationPage extends StatefulWidget {
   final String destination;
+  final bool? justFav;
 
   const InformationPage({
     super.key,
     required this.destination,
+    this.justFav
   });
 
   @override
@@ -74,6 +76,19 @@ class _InformationPageState extends State<InformationPage> {
     });
   }
 
+  void filterListsByFavorites() {
+    if (widget.justFav == true) {
+      setState(() {
+        filteredActivities = filteredActivities
+            .where((activity) => savedItems.contains(activity.id.toString()))
+            .toList();
+        filteredHotels = filteredHotels
+            .where((hotel) => savedItems.contains(hotel.id.toString()))
+            .toList();
+      });
+    }
+  }
+
   Future<void> fetchImportantInformation() async {
     final infoData = await ApiManager().getAllImportantInformation();
     setState(() {
@@ -102,6 +117,7 @@ class _InformationPageState extends State<InformationPage> {
     savedItems = await ApiManager().loadFavorites(context, widget.destination, user!.uuid);
     setState(() {
       savedItems = savedItems.toSet();
+      filterListsByFavorites();
     });
   }
 

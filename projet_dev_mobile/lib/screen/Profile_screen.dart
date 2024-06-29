@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projet_dev_mobile/models/location.dart';
 import 'package:projet_dev_mobile/models/user.dart';
+import 'package:projet_dev_mobile/screen/information_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/Change_page.dart';
 import '../services/api.dart';
@@ -303,23 +304,35 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: myFavorites.length,
-                    itemBuilder: (context, index) {
-                      Location location = myFavorites[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: myFavorites.length,
+                  itemBuilder: (context, index) {
+                    Location location = myFavorites[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => InformationPage(destination: location.name, justFav: true,)
+                            ),
+                          );
+                        },
                         child: TravelCard(
                           destination: location.name,
                           price: '${location.totalPrice} €',
-                          onDelete: () { _deleteFavorite(location); },
+                          onDelete: () {
+                            _deleteFavorite(location);
+                          },
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    );
+                  },
+                ),
+              ],
               ),
             ),
           );
