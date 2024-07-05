@@ -8,7 +8,7 @@ import '../screen/login_screen.dart';
 import '../models/location.dart';
 
 class ApiManager {
-  final String _baseUrl = 'http://172.20.10.3:8000/api';
+  final String _baseUrl = 'http://10.70.5.37:8000/api';
 
   Future<List<String>> loadData(BuildContext context) async {
     final uri = Uri.parse('$_baseUrl/geo');
@@ -71,8 +71,27 @@ class ApiManager {
 
 
 
-  Future<List<Geo>> loadInformationData(BuildContext context, String destination) async {
-    final uri = Uri.parse('$_baseUrl/geo/$destination');
+  Future<List<Geo>> loadInformationData(BuildContext context, String destination, int? budget) async {
+    final uri = Uri.parse('$_baseUrl/geo/$destination/${budget ?? ''}');
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      List<Geo> geoData = [];
+
+      final data = json.decode(response.body) as List;
+      for (var item in data) {
+        Geo geo = Geo.fromJson(item);
+        geoData.add(geo);
+      }
+      return geoData;
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginScreen()));
+      return [];
+    }
+  }
+
+  Future<List<Geo>> loadInformationDataWithBudget(BuildContext context, String destination, int budget) async {
+    final uri = Uri.parse('$_baseUrl/geo/$destination/$budget');
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {

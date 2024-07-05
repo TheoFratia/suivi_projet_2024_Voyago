@@ -16,6 +16,7 @@ class _HomeState extends State<Home> {
   late String destination;
   Color borderColor = borderColorHome;
   List<String> listLieux = [];
+  int? budget;
 
   bool estPresentDansListe(String recherche, List<String> liste) {
     final rechercheNormalisee = _normaliser(recherche.toLowerCase());
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
   void searchDestination() {
     if (estPresentDansListe(destination, listLieux)) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => InformationPage(destination: destination),));
+        builder: (context) => InformationPage(destination: destination, budget: budget,),));
     }
     else {
       setState(() {
@@ -204,9 +205,12 @@ class _HomeState extends State<Home> {
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 15.0, horizontal: 50.0),
-                        hintText: 'Un budget ?',
+                        hintText: 'Un budget pour vos activités ?',
                       ),
                       keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        budget = int.tryParse(value);
+                      },
                     ),
                   ),
                 ),

@@ -9,6 +9,7 @@ class PointOfInterest {
   String imageLink;
   DateTime createdAt;
   DateTime updatedAt;
+  int? Note;
 
   factory PointOfInterest.fromJson(Map<String, dynamic> json) {
     if (json['idIType'] == null || json['idIType'].isEmpty) {
@@ -25,10 +26,11 @@ class PointOfInterest {
       price: json['price'],
       titre: json['titre'],
       imageLink: json['imageLink'],
+      Note: json['Note'],
     );
   }
 
-  PointOfInterest({required this.id, required this.type ,required this.status, required this.createdAt, required this.updatedAt, required this.description, required this.link, required this.price, required this.titre, required this.imageLink});
+  PointOfInterest({required this.id, required this.type ,required this.status, required this.createdAt, required this.updatedAt, required this.description, required this.link, required this.price, required this.titre, required this.imageLink, this.Note});
 }
 
 

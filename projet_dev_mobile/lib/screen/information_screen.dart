@@ -21,12 +21,14 @@ enum InformationOption {
 
 class InformationPage extends StatefulWidget {
   final String destination;
+  final int? budget;
   final bool? justFav;
 
   const InformationPage({
     super.key,
     required this.destination,
-    this.justFav
+    this.justFav,
+    this.budget,
   });
 
   @override
@@ -60,8 +62,7 @@ class _InformationPageState extends State<InformationPage> {
   }
 
   Future<void> fetchInformationData() async {
-    final data =
-        await ApiManager().loadInformationData(context, widget.destination);
+    final data = await ApiManager().loadInformationData(context, widget.destination, widget.budget);
     setState(() {
       filteredActivities = data
           .where((geo) => geo.pointOfInterest != null)
@@ -190,6 +191,17 @@ class _InformationPageState extends State<InformationPage> {
                         item.description,
                         style: const TextStyle(
                           fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Note: ${item.Note}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
